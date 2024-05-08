@@ -7,6 +7,7 @@ const App = () => {
         introduction: '',
         theory: '',
         summary: '',
+        url: '',
         experiments: []
     });
 
@@ -45,7 +46,7 @@ const App = () => {
             ...paper,
             experiments: [
                 ...paper.experiments,
-                { name: '', task_context: '', task: '', task_explained: '', discussion: '', measurements: [] }
+                { name: '', task_context: '', task: '', task_explained: '', discussion: '', url: '', measurements: [] }
             ]
         });
     };
@@ -144,6 +145,13 @@ const App = () => {
                     onChange={handlePaperChange}
                     placeholder="Summary"
                 /><br />
+                <input
+                    type="url"
+                    name="url"
+                    value={paper.url}
+                    onChange={handlePaperChange}
+                    placeholder="Paper URL"
+                /><br />
                 {paper.experiments.map((exp, index) => (
                     <div key={index}>
                         <h3>Experiment {index + 1}</h3>
@@ -177,6 +185,13 @@ const App = () => {
                             value={exp.discussion}
                             onChange={(e) => handleExperimentChange(index, e)}
                             placeholder="Discussion"
+                        /><br />
+                        <input
+                            type="url"
+                            name="url"
+                            value={exp.url}
+                            onChange={(e) => handleExperimentChange(index, e)}
+                            placeholder="Experiment URL"
                         /><br />
                         {exp.measurements.map((meas, measIndex) => (
                             <div key={measIndex}>
