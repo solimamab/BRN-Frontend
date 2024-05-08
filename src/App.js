@@ -57,7 +57,7 @@ const App = () => {
                     ...exp,
                     measurements: [
                         ...exp.measurements,
-                        { description: '', parameters: '', interpretation: '', label: '', x: '', y: '', z: '' }
+                        { description: '', parameters: '', interpretation: '', label: '', x: '', y: '', z: '', brodmann_area: '', show_brodmann: false }
                     ]
                 };
             }
@@ -66,28 +66,54 @@ const App = () => {
         setPaper({ ...paper, experiments: updatedExperiments });
     };
 
+    const toggleBrodmannArea = (expIndex, measIndex) => {
+        const updatedExperiments = paper.experiments.map((exp, i) => {
+            if (i === expIndex) {
+                const updatedMeasurements = exp.measurements.map((meas, j) => {
+                    if (j === measIndex) {
+                        return { ...meas, show_brodmann: !meas.show_brodmann };
+                    }
+                    return meas;
+                });
+                return { ...exp, measurements: updatedMeasurements };
+            }
+            return exp;
+        });
+        setPaper({ ...paper, experiments: updatedExperiments });
+    };
+
     const handleSubmit = async (event) => {
-      event.preventDefault();
-      
-      const formattedPaper = {
-          ...paper,
-          experiments: paper.experiments.map(exp => ({
-              ...exp,
-              measurements: exp.measurements.map(meas => ({
-                  ...meas,
-                  coordinates: `${meas.x}, ${meas.y}, ${meas.z}`, // Ensure coordinates are formatted as a string
-                  regions: '' // This will be calculated on the backend
-              }))
-          }))
-      };
-  
-      try {
-          const response = await axios.post('http://localhost:8000/api/paper/', { paper: formattedPaper });
-          console.log('Successfully submitted:', response.data);
-      } catch (error) {
-          console.error('Error submitting paper:', error.response.data);
-      }
-  };
+        event.preventDefault();
+
+        const formattedPaper = {
+            ...paper,
+            experiments: paper.experiments.map(exp => ({
+                ...exp,
+                measurements: exp.measurements.map(meas => {
+                    if (meas.show_brodmann && meas.brodmann_area) {
+                        return {
+                            ...meas,
+                            brodmann_area: parseInt(meas.brodmann_area, 10),
+                            coordinates: '', // Brodmann area will be converted to coordinates in the backend
+                            regions: '' // This will be calculated on the backend
+                        };
+                    }
+                    return {
+                        ...meas,
+                        coordinates: `${meas.x}, ${meas.y}, ${meas.z}`, // Ensure coordinates are formatted as a string
+                        regions: '' // This will be calculated on the backend
+                    };
+                })
+            }))
+        };
+
+        try {
+            const response = await axios.post('http://localhost:8000/api/paper/', { paper: formattedPaper });
+            console.log('Successfully submitted:', response.data);
+        } catch (error) {
+            console.error('Error submitting paper:', error.response.data);
+        }
+    };
 
     return (
         <div className="App">
@@ -174,6 +200,7 @@ const App = () => {
                                     onChange={(e) => handleMeasurementChange(index, measIndex, e)}
                                     placeholder="Interpretation"
                                 /><br />
+                                <label>Label: </label>
                                 <input
                                     type="text"
                                     name="label"
@@ -181,27 +208,46 @@ const App = () => {
                                     onChange={(e) => handleMeasurementChange(index, measIndex, e)}
                                     placeholder="Label"
                                 /><br />
-                                <input
-                                    type="number"
-                                    name="x"
-                                    value={meas.x}
-                                    onChange={(e) => handleMeasurementChange(index, measIndex, e)}
-                                    placeholder="X Coordinate"
-                                /><br />
-                                <input
-                                    type="number"
-                                    name="y"
-                                    value={meas.y}
-                                    onChange={(e) => handleMeasurementChange(index, measIndex, e)}
-                                    placeholder="Y Coordinate"
-                                /><br />
-                                <input
-                                    type="number"
-                                    name="z"
-                                    value={meas.z}
-                                    onChange={(e) => handleMeasurementChange(index, measIndex, e)}
-                                    placeholder="Z Coordinate"
-                                /><br />
+                                <select onChange={() => toggleBrodmannArea(index, measIndex)}>
+                                    <option value="default">Select Measurement Type</option>
+                                    <option value="brodmann_area">Brodmann Area</option>
+                                </select><br />
+                                {meas.show_brodmann ? (
+                                    <>
+                                        <label>Brodmann Area:</label>
+                                        <input
+                                            type="number"
+                                            name="brodmann_area"
+                                            value={meas.brodmann_area}
+                                            onChange={(e) => handleMeasurementChange(index, measIndex, e)}
+                                            placeholder="Brodmann Area"
+                                        /><br />
+                                    </>
+                                ) : (
+                                    <>
+                                        <input
+                                            type="number"
+                                            name="x"
+                                            value={meas.x}
+                                            onChange={(e) => handleMeasurementChange(index, measIndex, e)}
+                                            placeholder="X Coordinate"
+                                        /><br />
+                                        <input
+                                            type="number"
+                                            name="y"
+                                            value={meas.y}
+                                            onChange={(e) => handleMeasurementChange(index, measIndex, e)}
+                                            placeholder="Y Coordinate"
+                                        /><br />
+                                        <input
+                                            type="number"
+                                            name="z"
+                                            value={meas.z}
+                                            onChange={(e) => handleMeasurementChange(index, measIndex, e)}
+                                            placeholder="Z Coordinate"
+                                        /><br />
+                                    </>
+                                )}
                             </div>
                         ))}
                         <button type="button" onClick={() => addMeasurement(index)}>Add Measurement</button>
