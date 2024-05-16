@@ -9,9 +9,16 @@ const HomePage = () => {
     // Fetch documents from the backend
     const fetchDocuments = async () => {
       try {
-        const response = await fetch('/api/documents/');
+        const response = await fetch('http://localhost:8000/api/documents/list/');
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
         const data = await response.json();
-        setDocuments(data);
+        if (Array.isArray(data)) {
+          setDocuments(data);
+        } else {
+          console.error('Data is not an array', data);
+        }
       } catch (error) {
         console.error('Failed to fetch documents', error);
       }
@@ -28,8 +35,8 @@ const HomePage = () => {
       </button>
       <ul>
         {documents.map(doc => (
-          <li key={doc.id} onClick={() => navigate(`/editor/${doc.id}`)}>
-            Document ID: {doc.uuid} {/* Assuming each document has a 'uuid' field */}
+          <li key={doc.unique_identifier} onClick={() => navigate(`/editor/${doc.unique_identifier}`)}>
+            Document ID: {doc.unique_identifier}
           </li>
         ))}
       </ul>

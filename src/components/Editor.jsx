@@ -5,7 +5,7 @@ import StarterKit from '@tiptap/starter-kit';
 import TextStyle from '@tiptap/extension-text-style';
 import Color from '@tiptap/extension-color';
 import ListItem from '@tiptap/extension-list-item';
-import '../styles.scss';
+import '../styles.scss'; 
 
 const Editor = () => {
     const { id } = useParams(); // Get document ID from URL
