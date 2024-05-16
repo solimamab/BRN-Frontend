@@ -36,7 +36,7 @@ const HomePage = () => {
       <ul>
         {documents.map(doc => (
           <li key={doc.unique_identifier} onClick={() => navigate(`/editor/${doc.unique_identifier}`)}>
-            Document ID: {doc.unique_identifier}
+            Document: {doc.name || 'Untitled'} (ID: {doc.unique_identifier})
           </li>
         ))}
       </ul>

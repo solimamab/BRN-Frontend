@@ -11,6 +11,7 @@ const Editor = () => {
     const { id } = useParams(); // Get document ID from URL
     const navigate = useNavigate();
     const [content, setContent] = useState('');
+    const [name, setName] = useState('');  // New state for document name
 
     // Initialize the editor
     const editor = useEditor({
@@ -27,7 +28,7 @@ const Editor = () => {
 
     // Effect to fetch document content from the backend
     useEffect(() => {
-        if (editor && id) { // Make sure editor and id exist
+        if (editor && id) { // Ensure editor and id exist
             fetch(`http://localhost:8000/api/documents/${id}/`)
                 .then(response => {
                     if (!response.ok) {
@@ -36,20 +37,21 @@ const Editor = () => {
                     return response.json();
                 })
                 .then(data => {
-                    // Set content in the editor only if the editor instance is available
                     if (editor && data.content) {
                         editor.commands.setContent(data.content);
                     }
+                    if (data.name) {
+                        setName(data.name);  // Set document name
+                    }
                 })
                 .catch(error => {
-                    if (error instanceof SyntaxError) {
-                        console.error("A syntax error occurred:", error);
-                    } else {
-                        console.error("An error occurred:", error);
+                    console.error('Failed to load document:', error);
+                    if (editor) {
+                        editor.commands.clearContent();
                     }
                 });
         }
-    }, [id, editor]); // Include editor in the dependency array to re-run effect when editor is ready
+    }, [id, editor]);
 
     const handleSave = async () => {
         if (editor) {
@@ -63,7 +65,7 @@ const Editor = () => {
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ content: documentData })
+                    body: JSON.stringify({ content: documentData, name })
                 });
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
@@ -86,6 +88,12 @@ const Editor = () => {
 
     return (
         <div className="Tiptap">
+            <div>
+                <label>
+                    Document Name:
+                    <input type="text" value={name} onChange={(e) => setName(e.target.value)} />
+                </label>
+            </div>
             <MenuBar editor={editor} handleSave={handleSave} />
             <EditorContent editor={editor} />
         </div>
