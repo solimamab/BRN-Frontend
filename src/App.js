@@ -1,19 +1,18 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
-import Tiptap from './components/MenuBar.jsx';
-import HomePage from './components/HomePage.jsx';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import HomePage from './components/HomePage';
+import Editor from './components/Editor';
 
 const App = () => {
-  return (
-    <Router>
-      <div className="App">
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/editor" element={<Tiptap />} />
-        </Routes>
-      </div>
-    </Router>
-  );
-}
+    return (
+        <Router>
+            <Routes>
+                <Route path="/" element={<HomePage />} />
+                <Route path="/editor" element={<Editor />} />
+                <Route path="/editor/:id" element={<Editor />} />
+            </Routes>
+        </Router>
+    );
+};
 
 export default App;
