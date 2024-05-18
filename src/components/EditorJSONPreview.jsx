@@ -7,7 +7,7 @@ const EditorJSONPreview = ({ editor }) => {
   }
 
   return (
-    <pre>
+    <pre style={{ marginTop: '1em', padding: '1em', background: 'black', borderRadius: '5px' }}>
       {JSON.stringify(editor.getJSON(), null, 2)}
     </pre>
   );
