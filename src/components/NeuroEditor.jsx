@@ -110,7 +110,7 @@ const TemplateEditor = () => {
             <FiArrowLeft />
           </button>
           <input type="text" className="document-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Untitled Document" />
-          <MenuBar editor={editor}  />
+          <MenuBar editor={editor} handleSave={handleSave} />
         </header>
         <EditorContent editor={editor} />
         <EditorJSONPreview editor={editor} />
