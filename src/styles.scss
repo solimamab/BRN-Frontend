@@ -10,29 +10,28 @@ body {
   padding: 10px;
   margin-bottom: 10px;
   background-color: #f9f9f9;
-  
-  .field {
-    border: 1px solid #ddd;
+
+  // Each child paragraph gets a labeled border
+  [data-type] {
+    border: 1px solid #e0e0e0;
     padding: 8px;
     margin-top: 5px;
+    position: relative;
+
     
-    label {
+
+    // Label for each type of paragraph
+    &::before {
+      content: attr(data-type);
       display: block;
-      margin-bottom: 5px;
-      color: #333;
-      font-weight: bold; // Makes labels bold
-    }
-    
-    .input {
-      padding: 6px;
-      background-color: white;
-      display: block;
-      width: 100%; // Ensures input fills the field container
-      border: 1px solid #eee; // Lighter border for inputs
-    }
-    
-    .input a {
-      color: #06c; // Stylish blue color for links
+      position: absolute;
+      top: -10px;
+      left: 10px;
+      background: #f9f9f9;
+      padding: 0 5px;
+      font-size: 0.85em;
+      color: #666;
+      font-weight: bold;
     }
   }
 }

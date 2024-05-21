@@ -1,4 +1,5 @@
 import { Node, mergeAttributes } from '@tiptap/core';
+import { TextSelection } from '@tiptap/pm/state';
 
 // Helper function to create custom paragraph nodes
 const createCustomParagraphNode = (name, dataType) => {
@@ -58,6 +59,31 @@ export const PaperNode = Node.create({
           ],
         });
       },
+    };
+  },
+
+  addKeyboardShortcuts() {
+    return {
+      ArrowDown: () => {
+        const { state, view } = this.editor;
+        const { $head } = state.selection;
+  
+        // Check if the selection is at the end of the paperURLParagraph
+        if ($head.parent.type.name === 'paperURLParagraph' && $head.pos === $head.end()) {
+          const endPos = $head.pos + 1; // Move beyond the paperURLParagraph
+          const tr = state.tr;
+  
+          // Check for the node after and insert paragraph if it's not there
+          if (!$head.nodeAfter || $head.nodeAfter.type.name !== 'paragraph') {
+            const paragraphNode = state.schema.nodes.paragraph.createAndFill();
+            tr.insert(endPos, paragraphNode);
+            tr.setSelection(TextSelection.near(tr.doc.resolve(endPos + 1))); // Create selection near the start of the new paragraph
+            view.dispatch(tr);
+            return true; // This stops further handling of this keydown event
+          }
+        }
+        return false; // Allows other keydown handlers to execute
+      }
     };
   }
 });

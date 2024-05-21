@@ -62,7 +62,7 @@ const TemplateEditor = () => {
       IntroductionParagraph,
       TheoryParagraph,
       SummaryParagraph,
-      PaperURLParagraph
+      PaperURLParagraph,
     ],
     content: '<p>Start writing here...</p>',
   });
@@ -110,18 +110,7 @@ const TemplateEditor = () => {
             <FiArrowLeft />
           </button>
           <input type="text" className="document-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Untitled Document" />
-          <button onClick={() => {
-            editor.commands.addPaperNode({
-              paperName: 'Example Paper',
-              introduction: 'This is an introduction.',
-              theory: 'Here is some theory.',
-              summary: 'This is the summary.',
-              paperURL: 'http://example.com'
-            });
-          }}>
-            Add Paper Node
-          </button>
-          <MenuBar editor={editor} handleSave={handleSave} />
+          <MenuBar editor={editor}  />
         </header>
         <EditorContent editor={editor} />
         <EditorJSONPreview editor={editor} />
@@ -145,6 +134,18 @@ const MenuBar = ({ editor, handleSave }) => {
 
   return (
     <div className="menu-bar">
+      <button onClick={() => {
+            editor.commands.addPaperNode({
+              paperName: '',
+              introduction: '',
+              theory: '',
+              summary: '',
+              paperURL: ''
+            });
+          }}>
+        Add Paper Node
+      </button>
+
       <select className="menu-select" onChange={(e) => setFontSize(e.target.value)} defaultValue="16">
         <option value="12">12pt</option>
         <option value="14">14pt</option>

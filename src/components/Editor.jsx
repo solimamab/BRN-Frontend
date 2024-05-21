@@ -112,6 +112,7 @@ const Editor = () => {
 };
 
 const MenuBar = ({ editor, handleSave }) => {
+  
   if (!editor) {
     return null;
   }
