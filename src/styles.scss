@@ -1,0 +1,333 @@
+body {
+  background-color: #f0f0f0;
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+}
+
+.paper-node {
+  border: 1px solid #ccc;
+  padding: 10px;
+  margin-bottom: 10px;
+  background-color: #f9f9f9;
+
+  // Each child paragraph gets a labeled border
+  [data-type] {
+    border: 1px solid #e0e0e0;
+    padding: 8px;
+    margin-top: 5px;
+    position: relative;
+
+    
+
+    // Label for each type of paragraph
+    &::before {
+      content: attr(data-type);
+      display: block;
+      position: absolute;
+      top: -10px;
+      left: 10px;
+      background: #f9f9f9;
+      padding: 0 5px;
+      font-size: 0.85em;
+      color: #666;
+      font-weight: bold;
+    }
+  }
+}
+
+.experiment-node {
+  border: 1px solid #ccc;
+  padding: 10px;
+  margin-bottom: 10px;
+  background-color: #f9f9f9;
+
+  // Each child paragraph gets a labeled border
+  [data-type] {
+    border: 1px solid #e0e0e0;
+    padding: 8px;
+    margin-top: 5px;
+    position: relative;
+
+    
+
+    // Label for each type of paragraph
+    &::before {
+      content: attr(data-type);
+      display: block;
+      position: absolute;
+      top: -10px;
+      left: 10px;
+      background: #f9f9f9;
+      padding: 0 5px;
+      font-size: 0.85em;
+      color: #666;
+      font-weight: bold;
+    }
+  }
+}
+
+.measurement-node {
+  border: 1px solid #ccc;
+  padding: 10px;
+  margin-bottom: 10px;
+  background-color: #f9f9f9;
+
+  // Each child paragraph gets a labeled border
+  [data-type] {
+    border: 1px solid #e0e0e0;
+    padding: 8px;
+    margin-top: 5px;
+    position: relative;
+
+    // Label for each type of paragraph
+    &::before {
+      content: attr(data-type);
+      display: block;
+      position: absolute;
+      top: -10px;
+      left: 10px;
+      background: #f9f9f9;
+      padding: 0 5px;
+      font-size: 0.85em;
+      color: #666;
+      font-weight: bold;
+    }
+  }
+}
+
+.Tiptap {
+  .editor-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1em;
+  }
+
+  .back-button {
+    background: none;
+    border: none;
+    font-size: 1.5em;
+    cursor: pointer;
+    margin-right: 1em;
+    margin-top: .3em;
+    margin-left: 5em;  /* Added margin to shift button 5em from left edge */
+  }
+
+  .editor-header {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    background-color: #fff;
+    padding: 1em;
+    border-bottom: 1px solid #ddd;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    position: fixed;
+    top: 0;
+    z-index: 10;
+    padding-left: 50em;  /* Added padding to the left */
+    padding-right: 50em;  /* Added padding to the right */
+  }
+  .document-name {
+    flex: 1;
+    font-size: 1.25em;
+    border: none;
+    outline: none;
+  }
+
+  .menu-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    margin-right: 5em;  /* Added margin to shift buttons 5em from right edge */
+  }
+
+  .menu-bar button {
+    background-color: #000;
+    color: white;
+    padding: 0.5em;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 0;
+    transition: background-color 0.3s;
+  }
+
+  .menu-bar button:hover {
+    background-color: #333;
+  }
+
+  .menu-bar button.is-active {
+    background-color: #555;
+    color: #ddd;
+  }
+
+  .ProseMirror {
+    margin: 5em auto 2em; /* Adjusted margin to account for fixed header */
+    padding: 2em;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    width: 8.5in; /* Fixed width */
+    max-width: 8.5in;
+    min-height: 11in;
+    background-color: #fff;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+  }
+
+  .ProseMirror p {
+    margin: 0;
+    padding: 0.5em 0;
+  }
+
+  ul,
+  ol {
+    padding: 0 1rem;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    line-height: 1.1;
+  }
+
+  code {
+    background-color: rgba(#616161, 0.1);
+    color: #616161;
+  }
+
+  pre {
+    background: #0D0D0D;
+    color: #FFF;
+    font-family: 'JetBrainsMono', monospace;
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+
+    code {
+      color: inherit;
+      padding: 0;
+      background: none;
+      font-size: 0.8rem;
+    }
+  }
+
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  blockquote {
+    padding-left: 1rem;
+    border-left: 2px solid rgba(#0D0D0D, 0.1);
+  }
+
+  hr {
+    border: none;
+    border-top: 2px solid rgba(#0D0D0D, 0.1);
+    margin: 2rem 0;
+  }
+}
+
+.homepage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  background-color: #f5f5f5;
+  height: 100vh;
+
+  .homepage-header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    max-width: 800px;
+    margin-bottom: 20px;
+
+    .header-left {
+      display: flex;
+      align-items: center;
+
+      h1 {
+        font-size: 24px;
+        color: #333;
+        margin-right: 20px;
+      }
+
+      .create-button, .template-button {
+        background-color: #1a73e8;
+        color: white;
+        padding: 10px 20px;
+        font-size: 16px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        margin-right: 10px;
+
+        &:hover {
+          background-color: #1558b0;
+        }
+      }
+
+      .template-button {
+        background-color: #34a853;  // Different color for template button
+        margin-right: 0;
+
+        &:hover {
+          background-color: #2c8a40;
+        }
+      }
+    }
+  }
+
+  .document-list {
+    width: 100%;
+    max-width: 800px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    overflow: auto;
+
+    ul {
+      list-style-type: none;
+      padding: 0;
+      margin: 0;
+
+      .document-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 1px solid #eee;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+
+        &:hover {
+          background-color: #f1f1f1;
+        }
+
+        .document-title {
+          font-size: 18px;
+          color: #333;
+        }
+
+        .document-id {
+          font-size: 14px;
+          color: #888;
+        }
+      }
+
+      .document-item:last-child {
+        border-bottom: none;
+      }
+    }
+
+    p {
+      text-align: center;
+      color: #888;
+    }
+  }
+}
