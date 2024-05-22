@@ -13,10 +13,53 @@ import FontSize from '../extensions/FontSize'; // Ensure this extension is impor
 import { PaperNode } from '../extensions/PaperNode'; // Import the form node extension
 import '../styles.scss';
 import EditorJSONPreview from './EditorJSONPreview'; // Import JSON preview component
+import { ExperimentNode } from '../extensions/ExperimentNode'; // Import the form node extension } from '../extensions/ExperimentNode';
+import { MeasurementNode } from '../extensions/MeasurementNode'; // Import the MeasurementNode
 
 const CustomDocument = Document.extend({
   content: 'block+',
 });
+
+
+// Helper function to create custom paragraph nodes that accept only integers
+const createIntegerParagraphNode = (name, placeholder) => {
+  return Node.create({
+    name: name,
+    group: 'block',
+    content: 'text*',
+    marks: '',
+
+    addAttributes() {
+      return {
+        placeholder: {
+          default: placeholder,
+        },
+        dataType: {
+          default: 'integer',
+        }
+      };
+    },
+
+    parseHTML() {
+      return [
+        {
+          tag: `p[data-type="integer"]`,
+          getAttrs: node => node.style && node.textContent.match(/^-?\d+$/)
+        }
+      ];
+    },
+
+    renderHTML({ node, HTMLAttributes }) {
+      return ['p', mergeAttributes(HTMLAttributes, { 'data-placeholder': node.attrs.placeholder, 'data-type': 'integer' }), 0];
+    }
+  });
+};
+
+// Creating custom nodes for each measurement field
+const XCoordinateParagraph = createIntegerParagraphNode('xCoordinateParagraph', 'X Coordinate');
+const YCoordinateParagraph = createIntegerParagraphNode('yCoordinateParagraph', 'Y Coordinate');
+const ZCoordinateParagraph = createIntegerParagraphNode('zCoordinateParagraph', 'Z Coordinate');
+const BrodmannAreaParagraph = createIntegerParagraphNode('brodmannAreaParagraph', 'Brodmann Area');
 
 
 const createCustomParagraphNode = (name, dataType) => {
@@ -45,6 +88,12 @@ const IntroductionParagraph = createCustomParagraphNode('introductionParagraph',
 const TheoryParagraph = createCustomParagraphNode('theoryParagraph', 'theory');
 const SummaryParagraph = createCustomParagraphNode('summaryParagraph', 'summary');
 const PaperURLParagraph = createCustomParagraphNode('paperURLParagraph', 'paperURL');
+const ExperimentNameParagraph = createCustomParagraphNode('experimentNameParagraph', 'experimentName');
+const TaskContextParagraph = createCustomParagraphNode('taskContextParagraph', 'taskContext');
+const TaskParagraph = createCustomParagraphNode('taskParagraph', 'task');
+const TaskExplainedParagraph = createCustomParagraphNode('taskExplainedParagraph', 'taskExplained');
+const DiscussionParagraph = createCustomParagraphNode('discussionParagraph', 'discussion');
+const ExperimentURLParagraph = createCustomParagraphNode('experimentURLParagraph', 'experimentURL');
 
 const TemplateEditor = () => {
   const { id } = useParams();
@@ -63,6 +112,18 @@ const TemplateEditor = () => {
       TheoryParagraph,
       SummaryParagraph,
       PaperURLParagraph,
+      ExperimentNode,
+      ExperimentNameParagraph,
+      TaskContextParagraph,
+      TaskParagraph,
+      TaskExplainedParagraph,
+      DiscussionParagraph,
+      ExperimentURLParagraph,
+      MeasurementNode,
+      XCoordinateParagraph,
+      YCoordinateParagraph,
+      ZCoordinateParagraph,
+      BrodmannAreaParagraph,
     ],
     content: '<p>Start writing here...</p>',
   });
@@ -132,6 +193,8 @@ const MenuBar = ({ editor, handleSave }) => {
     editor.chain().focus().setFontFamily(font).run();
   };
 
+
+  
   return (
     <div className="menu-bar">
       <button onClick={() => {
@@ -144,6 +207,27 @@ const MenuBar = ({ editor, handleSave }) => {
             });
           }}>
         Add Paper Node
+      </button>
+      <button onClick={() => {
+            editor.commands.addMeasurementNode({
+              measurementType: 'brodmann'
+            });
+          }}>
+        Add MNI Node
+      </button>
+              
+
+      <button onClick={() => {
+            editor.commands.addExperimentNode({
+              experimentName: '',
+              taskContext: '',
+              task: '',
+              taskExplained: '',
+              discussion: '',
+              experimentURL: ''
+            });
+          }}>
+        Add E Node
       </button>
 
       <select className="menu-select" onChange={(e) => setFontSize(e.target.value)} defaultValue="16">

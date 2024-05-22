@@ -36,6 +36,66 @@ body {
   }
 }
 
+.experiment-node {
+  border: 1px solid #ccc;
+  padding: 10px;
+  margin-bottom: 10px;
+  background-color: #f9f9f9;
+
+  // Each child paragraph gets a labeled border
+  [data-type] {
+    border: 1px solid #e0e0e0;
+    padding: 8px;
+    margin-top: 5px;
+    position: relative;
+
+    
+
+    // Label for each type of paragraph
+    &::before {
+      content: attr(data-type);
+      display: block;
+      position: absolute;
+      top: -10px;
+      left: 10px;
+      background: #f9f9f9;
+      padding: 0 5px;
+      font-size: 0.85em;
+      color: #666;
+      font-weight: bold;
+    }
+  }
+}
+
+.measurement-node {
+  border: 1px solid #ccc;
+  padding: 10px;
+  margin-bottom: 10px;
+  background-color: #f9f9f9;
+
+  // Each child paragraph gets a labeled border
+  [data-type] {
+    border: 1px solid #e0e0e0;
+    padding: 8px;
+    margin-top: 5px;
+    position: relative;
+
+    // Label for each type of paragraph
+    &::before {
+      content: attr(data-type);
+      display: block;
+      position: absolute;
+      top: -10px;
+      left: 10px;
+      background: #f9f9f9;
+      padding: 0 5px;
+      font-size: 0.85em;
+      color: #666;
+      font-weight: bold;
+    }
+  }
+}
+
 .Tiptap {
   .editor-container {
     display: flex;
