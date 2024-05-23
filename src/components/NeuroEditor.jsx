@@ -99,10 +99,34 @@ const MParametersPargarph = createCustomParagraphNode('mParametersParagraph', 'm
 const MInterpretationParagraph = createCustomParagraphNode('mInterpretationParagraph', 'mInterpertation');
 const MLabelParagraph = createCustomParagraphNode('mLabelParagraph', 'mLabel');
 
+const initialContent = {
+  type: 'doc',
+  content: [
+    {
+      type: 'paperNode',
+      content: [
+        { type: 'paperNameParagraph', content: [{ type: 'text', text: ' ' }] },
+        { type: 'introductionParagraph', content: [{ type: 'text', text: ' ' }] },
+        { type: 'theoryParagraph', content: [{ type: 'text', text: ' ' }] },
+        { type: 'summaryParagraph', content: [{ type: 'text', text: ' ' }] },
+        { type: 'paperURLParagraph', content: [{ type: 'text', text: ' ' }] }
+      ]
+    },
+    // Additional nodes can be added here if needed
+    {
+      type: 'paragraph',
+      content: [
+        { type: 'text', text: ' ' }
+      ]
+    }
+  ]
+};
+
 const TemplateEditor = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [name, setName] = useState('');
+  
 
   const editor = useEditor({
     extensions: [
@@ -133,7 +157,7 @@ const TemplateEditor = () => {
       MInterpretationParagraph,
       MLabelParagraph
     ],
-    content: '<p>Start writing here...</p>',
+    content: initialContent,
   });
 
   useEffect(() => {
@@ -206,22 +230,11 @@ const MenuBar = ({ editor, handleSave }) => {
   return (
     <div className="menu-bar">
       <button onClick={() => {
-            editor.commands.addPaperNode({
-              paperName: '',
-              introduction: '',
-              theory: '',
-              summary: '',
-              paperURL: ''
-            });
-          }}>
-        Add Paper Node
-      </button>
-      <button onClick={() => {
             editor.commands.addMeasurementNode({
               measurementType: 'mni'
             });
           }}>
-        Add MNI Node
+        Add Measurement 
       </button>
               
 
@@ -235,7 +248,7 @@ const MenuBar = ({ editor, handleSave }) => {
               experimentURL: ''
             });
           }}>
-        Add E Node
+        Add Experiment 
       </button>
 
       <select className="menu-select" onChange={(e) => setFontSize(e.target.value)} defaultValue="16">

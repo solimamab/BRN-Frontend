@@ -9,19 +9,19 @@ const Component = ({ node, editor, updateAttributes, getPos }) => {
 
     // Define the content based on the type
     const content = newType === 'mni' ? [
-      editor.schema.nodes.mDescriptionParagraph.createAndFill({}, editor.schema.text('Enter Description')),
-      editor.schema.nodes.mParametersParagraph.createAndFill({}, editor.schema.text('Enter Parameters')),
-      editor.schema.nodes.mInterpretationParagraph.createAndFill({}, editor.schema.text('Enter Interpretation')),
-      editor.schema.nodes.mLabelParagraph.createAndFill({}, editor.schema.text('Enter Label')),
-      editor.schema.nodes.xCoordinateParagraph.createAndFill({}, editor.schema.text('Enter X')),
-      editor.schema.nodes.yCoordinateParagraph.createAndFill({}, editor.schema.text('Enter Y')),
-      editor.schema.nodes.zCoordinateParagraph.createAndFill({}, editor.schema.text('Enter Z'))
+      editor.schema.nodes.mDescriptionParagraph.createAndFill({}, editor.schema.text(' ')),
+      editor.schema.nodes.mParametersParagraph.createAndFill({}, editor.schema.text(' ')),
+      editor.schema.nodes.mInterpretationParagraph.createAndFill({}, editor.schema.text(' ')),
+      editor.schema.nodes.mLabelParagraph.createAndFill({}, editor.schema.text(' ')),
+      editor.schema.nodes.xCoordinateParagraph.createAndFill({}, editor.schema.text(' ')),
+      editor.schema.nodes.yCoordinateParagraph.createAndFill({}, editor.schema.text(' ')),
+      editor.schema.nodes.zCoordinateParagraph.createAndFill({}, editor.schema.text(' '))
     ] : [
-      editor.schema.nodes.mDescriptionParagraph.createAndFill({}, editor.schema.text('Enter Description')),
-      editor.schema.nodes.mParametersParagraph.createAndFill({}, editor.schema.text('Enter Parameters')),
-      editor.schema.nodes.mInterpretationParagraph.createAndFill({}, editor.schema.text('Enter Interpretation')),
-      editor.schema.nodes.mLabelParagraph.createAndFill({}, editor.schema.text('Enter Label')),
-      editor.schema.nodes.brodmannAreaParagraph.createAndFill({}, editor.schema.text('Enter Brodmann Area'))
+      editor.schema.nodes.mDescriptionParagraph.createAndFill({}, editor.schema.text(' ')),
+      editor.schema.nodes.mParametersParagraph.createAndFill({}, editor.schema.text(' ')),
+      editor.schema.nodes.mInterpretationParagraph.createAndFill({}, editor.schema.text(' ')),
+      editor.schema.nodes.mLabelParagraph.createAndFill({}, editor.schema.text(' ')),
+      editor.schema.nodes.brodmannAreaParagraph.createAndFill({}, editor.schema.text(' '))
     ];
 
     // Create a new node with the toggled type
