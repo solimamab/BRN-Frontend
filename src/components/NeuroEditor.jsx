@@ -94,6 +94,10 @@ const TaskParagraph = createCustomParagraphNode('taskParagraph', 'task');
 const TaskExplainedParagraph = createCustomParagraphNode('taskExplainedParagraph', 'taskExplained');
 const DiscussionParagraph = createCustomParagraphNode('discussionParagraph', 'discussion');
 const ExperimentURLParagraph = createCustomParagraphNode('experimentURLParagraph', 'experimentURL');
+const MDescriptionParagraph = createCustomParagraphNode('mDescriptionParagraph', 'mDescription');
+const MParametersPargarph = createCustomParagraphNode('mParametersParagraph', 'mParameters');
+const MInterpretationParagraph = createCustomParagraphNode('mInterpretationParagraph', 'mInterpertation');
+const MLabelParagraph = createCustomParagraphNode('mLabelParagraph', 'mLabel');
 
 const TemplateEditor = () => {
   const { id } = useParams();
@@ -124,6 +128,10 @@ const TemplateEditor = () => {
       YCoordinateParagraph,
       ZCoordinateParagraph,
       BrodmannAreaParagraph,
+      MDescriptionParagraph,
+      MParametersPargarph,
+      MInterpretationParagraph,
+      MLabelParagraph
     ],
     content: '<p>Start writing here...</p>',
   });
@@ -210,7 +218,7 @@ const MenuBar = ({ editor, handleSave }) => {
       </button>
       <button onClick={() => {
             editor.commands.addMeasurementNode({
-              measurementType: 'brodmann'
+              measurementType: 'mni'
             });
           }}>
         Add MNI Node
