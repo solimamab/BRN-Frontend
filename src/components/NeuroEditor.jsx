@@ -15,6 +15,8 @@ import '../styles.scss';
 import EditorJSONPreview from './EditorJSONPreview'; // Import JSON preview component
 import { ExperimentNode } from '../extensions/ExperimentNode'; // Import the form node extension } from '../extensions/ExperimentNode';
 import { MeasurementNode } from '../extensions/MeasurementNode'; // Import the MeasurementNode
+import { FloatingMenu } from '@tiptap/react'; // Make sure the path is correct and the component exists in this path
+import { PluginKey } from '@tiptap/pm/state'
 
 const CustomDocument = Document.extend({
   content: 'block+',
@@ -111,16 +113,10 @@ const initialContent = {
         { type: 'summaryParagraph', content: [{ type: 'text', text: ' ' }] },
         { type: 'paperURLParagraph', content: [{ type: 'text', text: ' ' }] }
       ]
-    },
-    // Additional nodes can be added here if needed
-    {
-      type: 'paragraph',
-      content: [
-        { type: 'text', text: ' ' }
-      ]
     }
   ]
 };
+
 
 const TemplateEditor = () => {
   const { id } = useParams();
@@ -155,7 +151,7 @@ const TemplateEditor = () => {
       MDescriptionParagraph,
       MParametersPargarph,
       MInterpretationParagraph,
-      MLabelParagraph
+      MLabelParagraph,
     ],
     content: initialContent,
   });
@@ -205,12 +201,73 @@ const TemplateEditor = () => {
           <input type="text" className="document-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Untitled Document" />
           <MenuBar editor={editor} handleSave={handleSave} />
         </header>
+          <FloatMenu editor={editor} />
         <EditorContent editor={editor} />
         <EditorJSONPreview editor={editor} />
       </div>
     </div>
   );
 };
+
+
+const FloatMenu = ({ editor }) => {
+  const [hasExperimentNode, setHasExperimentNode] = useState(false);
+
+  // Effect to update the state based on the editor's content
+  useEffect(() => {
+    const updateState = () => {
+      const doc = editor.state.doc;
+      let foundExperimentNode = false;
+      doc.descendants((node) => {
+        if (node.type.name === 'experimentNode') {
+          foundExperimentNode = true;
+        }
+      });
+      setHasExperimentNode(foundExperimentNode);
+    };
+
+    // Listen to changes in the editor state to update the component
+    if (editor) {
+      updateState(); // Initial check
+      const unsubscribe = editor.on('update', updateState);
+      return () => unsubscribe();
+    }
+  }, [editor]);
+
+  if (!editor) {
+    return null;
+  }
+
+  return (
+    <FloatingMenu editor={editor} tippyOptions={{ duration: 100 }}>
+      <div className="menu-bar">
+        {hasExperimentNode && (
+          <button onClick={() => {
+            editor.commands.addMeasurementNode({
+              measurementType: 'mni'
+            });
+          }}>
+            Add Measurement
+          </button>
+        )}
+        <button onClick={() => {
+          editor.commands.addExperimentNode({
+            experimentName: '',
+            taskContext: '',
+            task: '',
+            taskExplained: '',
+            discussion: '',
+            experimentURL: ''
+          });
+        }}>
+          Add Experiment
+        </button>
+      </div>
+    </FloatingMenu>
+  );
+};
+
+
 
 const MenuBar = ({ editor, handleSave }) => {
   if (!editor) {
