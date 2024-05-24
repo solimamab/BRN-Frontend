@@ -213,8 +213,11 @@ const TemplateEditor = () => {
 const FloatMenu = ({ editor }) => {
   const [hasExperimentNode, setHasExperimentNode] = useState(false);
 
-  // Effect to update the state based on the editor's content
   useEffect(() => {
+    if (!editor) {
+      return;
+    }
+
     const updateState = () => {
       const doc = editor.state.doc;
       let foundExperimentNode = false;
@@ -226,12 +229,19 @@ const FloatMenu = ({ editor }) => {
       setHasExperimentNode(foundExperimentNode);
     };
 
-    // Listen to changes in the editor state to update the component
-    if (editor) {
-      updateState(); // Initial check
-      const unsubscribe = editor.on('update', updateState);
-      return () => unsubscribe();
-    }
+    // Add the update listener
+    updateState(); // Call immediately to set initial state
+    const onUpdate = editor.on('update', updateState);
+
+    // Return a cleanup function
+    return () => {
+      if (onUpdate && typeof onUpdate === 'function') {
+        onUpdate(); // If onUpdate is a function, it's likely the unsubscribe function
+      } else {
+        // If TipTap doesn't provide an unsubscribe function, manually remove the listener
+        editor.off('update', updateState);
+      }
+    };
   }, [editor]);
 
   if (!editor) {
@@ -266,8 +276,6 @@ const FloatMenu = ({ editor }) => {
     </FloatingMenu>
   );
 };
-
-
 
 const MenuBar = ({ editor, handleSave }) => {
   if (!editor) {
