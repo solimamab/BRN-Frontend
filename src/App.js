@@ -9,9 +9,10 @@ const App = () => {
     <Router>
       <Routes>
         <Route path="/" element={<HomePage />} />
-        <Route path="/editor/:id" element={<TemplateEditor />} />
-        <Route path="/editor" element={<TemplateEditor />} />
-        <Route path="/templates" element={<TemplateEditor />} />
+        <Route path="/editor/:id" element={<Editor />} />
+        <Route path="/editor" element={<Editor />} />
+        <Route path="/neuro1" element={<TemplateEditor />} />
+        <Route path="/neuro1/:id" element={<TemplateEditor />} />
       </Routes>
     </Router>
   );

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import '../styles.scss';  // Ensure you import the styles
+import '../styles.scss';
 
 const HomePage = () => {
   const [documents, setDocuments] = useState([]);
@@ -27,6 +27,12 @@ const HomePage = () => {
     fetchDocuments();
   }, []);
 
+  // Function to determine the route based on the document's template
+  const navigateToEditor = (doc) => {
+    const editorRoute = doc.template === 'neuro1' ? `/neuro1/${doc.unique_identifier}` : `/editor/${doc.unique_identifier}`;
+    navigate(editorRoute);
+  };
+
   return (
     <div className="homepage">
       <header className="homepage-header">
@@ -35,7 +41,7 @@ const HomePage = () => {
           <button className="create-button" onClick={() => navigate('/editor', { state: { isNew: true } })}>
             Create New Document
           </button>
-          <button className="template-button" onClick={() => navigate('/templates')}>
+          <button className="template-button" onClick={() => navigate('/neuro1')}>
             Templates
           </button>
         </div>
@@ -44,9 +50,9 @@ const HomePage = () => {
         {documents.length > 0 ? (
           <ul>
             {documents.map(doc => (
-              <li key={doc.unique_identifier} className="document-item" onClick={() => navigate(`/editor/${doc.unique_identifier}`)}>
+              <li key={doc.unique_identifier} className="document-item" onClick={() => navigateToEditor(doc)}>
                 <div className="document-title">{doc.name || 'Untitled'}</div>
-                <div className="document-id">ID: {doc.unique_identifier}</div>
+                <div className="document-template">Template: {doc.template}</div>
               </li>
             ))}
           </ul>

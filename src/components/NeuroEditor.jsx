@@ -174,16 +174,19 @@ const TemplateEditor = () => {
     if (editor) {
       const documentData = editor.getJSON();
       const method = id ? 'PUT' : 'POST';
+      const templateName = 'neuro1'; // Hardcoded template name for this editor
+
+
       const url = id ? `http://localhost:8000/api/documents/${id}/` : 'http://localhost:8000/api/documents/';
       try {
         const response = await fetch(url, {
           method: method,
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ content: documentData, name }),
+          body: JSON.stringify({ content: documentData, name, template: templateName }),
         });
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         const savedData = await response.json();
-        if (!id) navigate(`/editor/${savedData.unique_identifier}`, { replace: true });
+        if (!id) navigate(`/neuro1/${savedData.unique_identifier}`, { replace: true });
         console.log("Document saved!", savedData);
       } catch (error) {
         console.error("Failed to save document:", error);
