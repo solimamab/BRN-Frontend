@@ -205,7 +205,7 @@ const TemplateEditor = () => {
         const response = await fetch(url, {
           method: method,
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ content: documentData, name }),
+          body: JSON.stringify( editor.getJSON() ),
         });
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         const savedData = await response.json();
