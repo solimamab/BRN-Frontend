@@ -194,6 +194,29 @@ const TemplateEditor = () => {
     }
   };
 
+
+  // Method to send back the JSON data to a local host link and confirm a JSON response was received (unlike handleSave this is only sending back the JSON, but ins't changing anything in the editor based on that response)
+  const handleParse = async () => {
+    if (editor) {
+      const documentData = editor.getJSON();
+      const method = 'POST';
+      const url = 'http://localhost:8000/api/documents/parse/';
+      try {
+        const response = await fetch(url, {
+          method: method,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ content: documentData, name }),
+        });
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const savedData = await response.json();
+        console.log("Document sent!", savedData);
+      } catch (error) {
+        console.error("Failed to send document:", error);
+      }
+    }
+  };
+
+
   return (
     <div className="Tiptap">
       <div className="editor-container">
@@ -202,7 +225,7 @@ const TemplateEditor = () => {
             <FiArrowLeft />
           </button>
           <input type="text" className="document-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Untitled Document" />
-          <MenuBar editor={editor} handleSave={handleSave} />
+          <MenuBar editor={editor} handleSave={handleSave} handleParse={handleParse} />
         </header>
           <FloatMenu editor={editor} />
         <EditorContent editor={editor} />
@@ -280,7 +303,7 @@ const FloatMenu = ({ editor }) => {
   );
 };
 
-const MenuBar = ({ editor, handleSave }) => {
+const MenuBar = ({ editor, handleSave, handleParse }) => {
   if (!editor) {
     return null;
   }
@@ -297,27 +320,8 @@ const MenuBar = ({ editor, handleSave }) => {
   
   return (
     <div className="menu-bar">
-      <button onClick={() => {
-            editor.commands.addMeasurementNode({
-              measurementType: 'mni'
-            });
-          }}>
-        Add Measurement 
-      </button>
-              
-
-      <button onClick={() => {
-            editor.commands.addExperimentNode({
-              experimentName: '',
-              taskContext: '',
-              task: '',
-              taskExplained: '',
-              discussion: '',
-              experimentURL: ''
-            });
-          }}>
-        Add Experiment 
-      </button>
+      
+      <button onClick={handleParse}>Parse</button>
 
       <select className="menu-select" onChange={(e) => setFontSize(e.target.value)} defaultValue="16">
         <option value="12">12pt</option>
