@@ -61,6 +61,7 @@ const Editor = () => {
       const documentData = editor.getJSON();
       const method = id ? 'PUT' : 'POST';
       const url = id ? `http://localhost:8000/api/documents/${id}/` : 'http://localhost:8000/api/documents/';
+      const templateName = 'Standard'; // Hardcoded template name for this editor
 
       try {
         const response = await fetch(url, {
@@ -68,7 +69,7 @@ const Editor = () => {
           headers: {
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify({ content: documentData, name })
+          body: JSON.stringify({ content: documentData, name, template: templateName })
         });
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);

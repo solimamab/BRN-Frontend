@@ -52,12 +52,12 @@ export const ExperimentNode = Node.create({
           type: 'experimentNode',
           attrs: attributes,
           content: [
-            { type: 'experimentNameParagraph', content: [{ type: 'text', text: attributes.experimentName || "Experiment Name" }] },
-            { type: 'taskContextParagraph', content: [{ type: 'text', text: attributes.taskContext || "Task Context" }] },
-            { type: 'taskParagraph', content: [{ type: 'text', text: attributes.task || "Task" }] },
-            { type: 'taskExplainedParagraph', content: [{ type: 'text', text: attributes.taskExplained || "Task Explained" }] },
-            { type: 'discussionParagraph', content: [{ type: 'text', text: attributes.discussion || "Discussion" }] },
-            { type: 'experimentURLParagraph', content: [{ type: 'text', text: attributes.experimentURL || "http://example.com" }] },
+            { type: 'experimentNameParagraph', content: [{ type: 'text', text: ' ' || "Experiment Name" }] },
+            { type: 'taskContextParagraph', content: [{ type: 'text', text: ' ' || "Task Context" }] },
+            { type: 'taskParagraph', content: [{ type: 'text', text: ' ' || "Task" }] },
+            { type: 'taskExplainedParagraph', content: [{ type: 'text', text: ' ' || "Task Explained" }] },
+            { type: 'discussionParagraph', content: [{ type: 'text', text: ' ' || "Discussion" }] },
+            { type: 'experimentURLParagraph', content: [{ type: 'text', text: ' ' || "http://example.com" }] },
           ],
         });
       },

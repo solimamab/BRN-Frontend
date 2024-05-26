@@ -15,6 +15,8 @@ import '../styles.scss';
 import EditorJSONPreview from './EditorJSONPreview'; // Import JSON preview component
 import { ExperimentNode } from '../extensions/ExperimentNode'; // Import the form node extension } from '../extensions/ExperimentNode';
 import { MeasurementNode } from '../extensions/MeasurementNode'; // Import the MeasurementNode
+import { FloatingMenu } from '@tiptap/react'; // Make sure the path is correct and the component exists in this path
+import { PluginKey } from '@tiptap/pm/state'
 
 const CustomDocument = Document.extend({
   content: 'block+',
@@ -94,11 +96,33 @@ const TaskParagraph = createCustomParagraphNode('taskParagraph', 'task');
 const TaskExplainedParagraph = createCustomParagraphNode('taskExplainedParagraph', 'taskExplained');
 const DiscussionParagraph = createCustomParagraphNode('discussionParagraph', 'discussion');
 const ExperimentURLParagraph = createCustomParagraphNode('experimentURLParagraph', 'experimentURL');
+const MDescriptionParagraph = createCustomParagraphNode('mDescriptionParagraph', 'mDescription');
+const MParametersPargarph = createCustomParagraphNode('mParametersParagraph', 'mParameters');
+const MInterpretationParagraph = createCustomParagraphNode('mInterpretationParagraph', 'mInterpertation');
+const MLabelParagraph = createCustomParagraphNode('mLabelParagraph', 'mLabel');
+
+const initialContent = {
+  type: 'doc',
+  content: [
+    {
+      type: 'paperNode',
+      content: [
+        { type: 'paperNameParagraph', content: [{ type: 'text', text: ' ' }] },
+        { type: 'introductionParagraph', content: [{ type: 'text', text: ' ' }] },
+        { type: 'theoryParagraph', content: [{ type: 'text', text: ' ' }] },
+        { type: 'summaryParagraph', content: [{ type: 'text', text: ' ' }] },
+        { type: 'paperURLParagraph', content: [{ type: 'text', text: ' ' }] }
+      ]
+    }
+  ]
+};
+
 
 const TemplateEditor = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [name, setName] = useState('');
+  
 
   const editor = useEditor({
     extensions: [
@@ -124,8 +148,12 @@ const TemplateEditor = () => {
       YCoordinateParagraph,
       ZCoordinateParagraph,
       BrodmannAreaParagraph,
+      MDescriptionParagraph,
+      MParametersPargarph,
+      MInterpretationParagraph,
+      MLabelParagraph,
     ],
-    content: '<p>Start writing here...</p>',
+    content: initialContent,
   });
 
   useEffect(() => {
@@ -146,16 +174,19 @@ const TemplateEditor = () => {
     if (editor) {
       const documentData = editor.getJSON();
       const method = id ? 'PUT' : 'POST';
+      const templateName = 'neuro1'; // Hardcoded template name for this editor
+
+
       const url = id ? `http://localhost:8000/api/documents/${id}/` : 'http://localhost:8000/api/documents/';
       try {
         const response = await fetch(url, {
           method: method,
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ content: documentData, name }),
+          body: JSON.stringify({ content: documentData, name, template: templateName }),
         });
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         const savedData = await response.json();
-        if (!id) navigate(`/editor/${savedData.unique_identifier}`, { replace: true });
+        if (!id) navigate(`/neuro1/${savedData.unique_identifier}`, { replace: true });
         console.log("Document saved!", savedData);
       } catch (error) {
         console.error("Failed to save document:", error);
@@ -173,10 +204,79 @@ const TemplateEditor = () => {
           <input type="text" className="document-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Untitled Document" />
           <MenuBar editor={editor} handleSave={handleSave} />
         </header>
+          <FloatMenu editor={editor} />
         <EditorContent editor={editor} />
         <EditorJSONPreview editor={editor} />
       </div>
     </div>
+  );
+};
+
+
+const FloatMenu = ({ editor }) => {
+  const [hasExperimentNode, setHasExperimentNode] = useState(false);
+
+  useEffect(() => {
+    if (!editor) {
+      return;
+    }
+
+    const updateState = () => {
+      const doc = editor.state.doc;
+      let foundExperimentNode = false;
+      doc.descendants((node) => {
+        if (node.type.name === 'experimentNode') {
+          foundExperimentNode = true;
+        }
+      });
+      setHasExperimentNode(foundExperimentNode);
+    };
+
+    // Add the update listener
+    updateState(); // Call immediately to set initial state
+    const onUpdate = editor.on('update', updateState);
+
+    // Return a cleanup function
+    return () => {
+      if (onUpdate && typeof onUpdate === 'function') {
+        onUpdate(); // If onUpdate is a function, it's likely the unsubscribe function
+      } else {
+        // If TipTap doesn't provide an unsubscribe function, manually remove the listener
+        editor.off('update', updateState);
+      }
+    };
+  }, [editor]);
+
+  if (!editor) {
+    return null;
+  }
+
+  return (
+    <FloatingMenu editor={editor} tippyOptions={{ duration: 100 }}>
+      <div className="menu-bar">
+        {hasExperimentNode && (
+          <button onClick={() => {
+            editor.commands.addMeasurementNode({
+              measurementType: 'mni'
+            });
+          }}>
+            Add Measurement
+          </button>
+        )}
+        <button onClick={() => {
+          editor.commands.addExperimentNode({
+            experimentName: '',
+            taskContext: '',
+            task: '',
+            taskExplained: '',
+            discussion: '',
+            experimentURL: ''
+          });
+        }}>
+          Add Experiment
+        </button>
+      </div>
+    </FloatingMenu>
   );
 };
 
@@ -198,22 +298,11 @@ const MenuBar = ({ editor, handleSave }) => {
   return (
     <div className="menu-bar">
       <button onClick={() => {
-            editor.commands.addPaperNode({
-              paperName: '',
-              introduction: '',
-              theory: '',
-              summary: '',
-              paperURL: ''
-            });
-          }}>
-        Add Paper Node
-      </button>
-      <button onClick={() => {
             editor.commands.addMeasurementNode({
-              measurementType: 'brodmann'
+              measurementType: 'mni'
             });
           }}>
-        Add MNI Node
+        Add Measurement 
       </button>
               
 
@@ -227,7 +316,7 @@ const MenuBar = ({ editor, handleSave }) => {
               experimentURL: ''
             });
           }}>
-        Add E Node
+        Add Experiment 
       </button>
 
       <select className="menu-select" onChange={(e) => setFontSize(e.target.value)} defaultValue="16">
