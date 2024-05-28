@@ -32,6 +32,9 @@ const Editor = () => {
     content: content,
     onUpdate: ({ editor }) => {
       setContent(editor.getJSON());
+    },
+    onCreate: ({editor}) => {
+      editor.chain().focus().setFontFamily('Times New Roman').setFontSize('16pt').run();
     }
   });
 
@@ -136,7 +139,7 @@ const MenuBar = ({ editor, handleSave }) => {
         <option value="24">24pt</option>
       </select>
 
-      <select onChange={(e) => setFontFamily(e.target.value)} defaultValue="Arial">
+      <select onChange={(e) => setFontFamily(e.target.value)} defaultValue="Times New Roman">
         <option value="Arial">Arial</option>
         <option value="Courier New">Courier New</option>
         <option value="Georgia">Georgia</option>
