@@ -24,7 +24,7 @@ const CustomDocument = Document.extend({
 
 
 // Helper function to create custom paragraph nodes that accept only integers
-const createIntegerParagraphNode = (name, placeholder) => {
+const createIntegerParagraphNode = (name, dataType) => {
   return Node.create({
     name: name,
     group: 'block',
@@ -33,35 +33,26 @@ const createIntegerParagraphNode = (name, placeholder) => {
 
     addAttributes() {
       return {
-        placeholder: {
-          default: placeholder,
-        },
         dataType: {
-          default: 'integer',
+          default: dataType,
         }
       };
     },
 
     parseHTML() {
-      return [
-        {
-          tag: `p[data-type="integer"]`,
-          getAttrs: node => node.style && node.textContent.match(/^-?\d+$/)
-        }
-      ];
+      return [{ tag: `p[data-type="${dataType}"]` }];
     },
-
     renderHTML({ node, HTMLAttributes }) {
-      return ['p', mergeAttributes(HTMLAttributes, { 'data-placeholder': node.attrs.placeholder, 'data-type': 'integer' }), 0];
+      return ['p', mergeAttributes(HTMLAttributes, {'data-type': dataType}), 0];
     }
   });
 };
 
-// Creating custom nodes for each measurement field
-const XCoordinateParagraph = createIntegerParagraphNode('xCoordinateParagraph', 'X Coordinate');
-const YCoordinateParagraph = createIntegerParagraphNode('yCoordinateParagraph', 'Y Coordinate');
-const ZCoordinateParagraph = createIntegerParagraphNode('zCoordinateParagraph', 'Z Coordinate');
-const BrodmannAreaParagraph = createIntegerParagraphNode('brodmannAreaParagraph', 'Brodmann Area');
+
+const XCoordinateParagraph = createIntegerParagraphNode('xCoordinateParagraph', 'xCoordinate');
+const YCoordinateParagraph = createIntegerParagraphNode('yCoordinateParagraph', 'yCoordinate');
+const ZCoordinateParagraph = createIntegerParagraphNode('zCoordinateParagraph', 'zCoordinate');
+const BrodmannAreaParagraph = createIntegerParagraphNode('brodmannAreaParagraph', 'bArea');
 
 
 const createCustomParagraphNode = (name, dataType) => {
