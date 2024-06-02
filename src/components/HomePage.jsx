@@ -33,6 +33,22 @@ const HomePage = () => {
     navigate(editorRoute);
   };
 
+  // Function to delete a document
+  const deleteDocument = async (uniqueIdentifier) => {
+    try {
+      const response = await fetch(`http://localhost:8000/api/documents/delete/${uniqueIdentifier}`, {
+        method: 'DELETE'
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      // Remove the deleted document from the documents array
+      setDocuments(documents.filter(doc => doc.unique_identifier !== uniqueIdentifier));
+    } catch (error) {
+      console.error('Failed to delete document', error);
+    }
+  };
+
   return (
     <div className="homepage">
       <header className="homepage-header">
@@ -50,9 +66,10 @@ const HomePage = () => {
         {documents.length > 0 ? (
           <ul>
             {documents.map(doc => (
-              <li key={doc.unique_identifier} className="document-item" onClick={() => navigateToEditor(doc)}>
-                <div className="document-title">{doc.name || 'Untitled'}</div>
+              <li key={doc.unique_identifier} className="document-item">
+                <div className="document-title" onClick={() => navigateToEditor(doc)}>{doc.name || 'Untitled'}</div>
                 <div className="document-template">Template: {doc.template}</div>
+                <button onClick={() => deleteDocument(doc.unique_identifier)}>Delete</button>
               </li>
             ))}
           </ul>

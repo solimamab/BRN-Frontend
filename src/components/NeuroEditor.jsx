@@ -113,7 +113,8 @@ const TemplateEditor = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [name, setName] = useState('');
-  
+  const [isNameChanged, setIsNameChanged] = useState(false); // Track if the name has changed
+
 
   const editor = useEditor({
     extensions: [
@@ -145,6 +146,9 @@ const TemplateEditor = () => {
       MLabelParagraph,
     ],
     content: initialContent,
+    onUpdate: ({ editor }) => {
+      handleSave();
+    }
   });
 
   useEffect(() => {
@@ -160,6 +164,14 @@ const TemplateEditor = () => {
         .catch(error => console.error('Failed to load document:', error));
     }
   }, [id, editor]);
+
+  useEffect(() => {
+    // Check if name has changed
+    if (isNameChanged) {
+      handleSave();
+    }
+  }, [isNameChanged]);
+
 
   const handleSave = async () => {
     if (editor) {
@@ -178,11 +190,16 @@ const TemplateEditor = () => {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         const savedData = await response.json();
         if (!id) navigate(`/neuro1/${savedData.unique_identifier}`, { replace: true });
-        console.log("Document saved!", savedData);
       } catch (error) {
         console.error("Failed to save document:", error);
       }
+      setIsNameChanged(false); // Reset the flag after saving
     }
+  };
+
+  const handleNameChange = (e) => {
+    setName(e.target.value);
+    setIsNameChanged(true); // Set the flag when name changes
   };
 
 
@@ -215,7 +232,7 @@ const TemplateEditor = () => {
           <button className="back-button" onClick={() => navigate('/')}>
             <FiArrowLeft />
           </button>
-          <input type="text" className="document-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Untitled Document" />
+          <input type="text" className="document-name" value={name} onChange={handleNameChange} placeholder="Untitled Document" />
           <MenuBar editor={editor} handleSave={handleSave} handleParse={handleParse} />
         </header>
           <FloatMenu editor={editor} />
@@ -322,7 +339,7 @@ const MenuBar = ({ editor, handleSave, handleParse }) => {
         <option value="24">24pt</option>
       </select>
 
-      <select className="menu-select" onChange={(e) => setFontFamily(e.target.value)} defaultValue="Times New Roman">
+      <select className="menu-select" onChange={(e) => setFontFamily(e.target.value)} defaultValue="Arial">
         <option value="Arial">Arial</option>
         <option value="Courier New">Courier New</option>
         <option value="Georgia">Georgia</option>

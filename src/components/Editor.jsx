@@ -21,6 +21,8 @@ const Editor = () => {
   const navigate = useNavigate();
   const [content, setContent] = useState('');
   const [name, setName] = useState('');
+  const [isNameChanged, setIsNameChanged] = useState(false); // Track if the name has changed
+
 
   const editor = useEditor({
     extensions: [
@@ -30,8 +32,11 @@ const Editor = () => {
       FontSize,
     ],
     content: content,
+    onCreate: ({ editor }) => {
+      editor.chain().focus().setFontFamily('Times New Roman').run();
+    },
     onUpdate: ({ editor }) => {
-      setContent(editor.getJSON());
+      handleSave();
     }
   });
 
@@ -56,6 +61,14 @@ const Editor = () => {
     }
   }, [id, editor]);
 
+  
+  useEffect(() => {
+    // Check if name has changed
+    if (isNameChanged) {
+      handleSave();
+    }
+  }, [isNameChanged]);
+
   const handleSave = async () => {
     if (editor) {
       const documentData = editor.getJSON();
@@ -78,11 +91,16 @@ const Editor = () => {
         if (!id) {
           navigate(`/editor/${savedData.unique_identifier}`, { replace: true });
         }
-        console.log("Document saved!", savedData);
       } catch (error) {
         console.error("Failed to save document:", error);
       }
+      setIsNameChanged(false); // Reset the flag after saving
     }
+  };
+
+  const handleNameChange = (e) => {
+    setName(e.target.value);
+    setIsNameChanged(true); // Set the flag when name changes
   };
 
   if (!editor) {
@@ -96,13 +114,7 @@ const Editor = () => {
           <button className="back-button" onClick={() => navigate('/')}>
             <FiArrowLeft />
           </button>
-          <input
-            type="text"
-            className="document-name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Untitled Document"
-          />
+          <input type="text" className="document-name" value={name} onChange={handleNameChange} placeholder="Untitled Document" />
           <MenuBar editor={editor} handleSave={handleSave} />
         </header>
         <EditorContent editor={editor} />
@@ -136,7 +148,7 @@ const MenuBar = ({ editor, handleSave }) => {
         <option value="24">24pt</option>
       </select>
 
-      <select onChange={(e) => setFontFamily(e.target.value)} defaultValue="Arial">
+      <select onChange={(e) => setFontFamily(e.target.value)} defaultValue="Times New Roman">
         <option value="Arial">Arial</option>
         <option value="Courier New">Courier New</option>
         <option value="Georgia">Georgia</option>
