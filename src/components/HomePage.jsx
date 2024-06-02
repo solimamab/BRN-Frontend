@@ -6,6 +6,42 @@ const HomePage = () => {
   const [documents, setDocuments] = useState([]);
   const navigate = useNavigate();
 
+  const handleCreateDocument = async () => {
+    try {
+      const response = await fetch('http://localhost:8000/api/documents/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      if (!response.ok) {
+        throw new Error(`Failed to create document! Status: ${response.status}`);
+      }
+      const data = await response.json();
+      navigate(`/editor/${data.unique_identifier}`);
+    } catch (error) {
+      console.error('Error creating document:', error);
+    }
+  };
+
+  const handleCreateNeuro1 = async () => {
+    try {
+      const response = await fetch('http://localhost:8000/api/documents/neuro1/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      if (!response.ok) {
+        throw new Error(`Failed to create neuro1 document! Status: ${response.status}`);
+      }
+      const data = await response.json();
+      navigate(`/neuro1/${data.unique_identifier}`);
+    } catch (error) {
+      console.error('Error creating neuro1 document:', error);
+    }
+  };
+
   useEffect(() => {
     const fetchDocuments = async () => {
       try {
@@ -54,11 +90,11 @@ const HomePage = () => {
       <header className="homepage-header">
         <div className="header-left">
           <h1>BRN</h1>
-          <button className="create-button" onClick={() => navigate('/editor', { state: { isNew: true } })}>
+          <button className="create-button" onClick={handleCreateDocument}>
             Create New Document
           </button>
-          <button className="template-button" onClick={() => navigate('/neuro1')}>
-            Templates
+          <button className="template-button" onClick={handleCreateNeuro1}>
+            Create Neuro1 Document
           </button>
         </div>
       </header>
@@ -67,7 +103,9 @@ const HomePage = () => {
           <ul>
             {documents.map(doc => (
               <li key={doc.unique_identifier} className="document-item">
-                <div className="document-title" onClick={() => navigateToEditor(doc)}>{doc.name || 'Untitled'}</div>
+                <div className="document-title" onClick={() => navigateToEditor(doc)}>
+                  {doc.name || 'Untitled'}
+                </div>
                 <div className="document-template">Template: {doc.template}</div>
                 <button onClick={() => deleteDocument(doc.unique_identifier)}>Delete</button>
               </li>
