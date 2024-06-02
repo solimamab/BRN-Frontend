@@ -39,6 +39,15 @@ export const PaperNode = Node.create({
   group: 'block',
   content: 'paperNameParagraph introductionParagraph theoryParagraph summaryParagraph paperURLParagraph',
 
+  
+  addAttributes() {
+    return {
+      uuid: {
+        default: null // UUID will be null for new nodes initially
+      }
+    };
+  },
+
   parseHTML() {
     return [{ tag: 'paper-node' }];
   },
@@ -62,6 +71,19 @@ export const PaperNode = Node.create({
           ],
         });
       },
+      setPaperNodeUUID: (uuid) => ({ tr, commands }) => {
+        const { doc } = tr;
+        let updated = false;
+        doc.descendants((node, pos) => {
+          if (node.type.name === 'paperNode') {
+            const transaction = tr.setNodeMarkup(pos, null, { ...node.attrs, uuid: uuid });
+            updated = true;
+            return false;  // Stop iterating after finding the first paperNode
+          }
+          return true;
+        });
+        return updated;
+      }
     };
   },
 

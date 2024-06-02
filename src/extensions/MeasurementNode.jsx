@@ -75,6 +75,9 @@ export const MeasurementNode = Node.create({
     return {
       measurementType: {
         default: 'mni', // 'mni' for coordinates, 'brodmann' for Brodmann area
+      },
+      uuid: {
+        default: null,
       }
     };
   },

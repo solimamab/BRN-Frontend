@@ -36,6 +36,14 @@ export const ExperimentNode = Node.create({
   name: 'experimentNode',
   group: 'block',
   content: 'experimentNameParagraph taskContextParagraph taskParagraph taskExplainedParagraph discussionParagraph experimentURLParagraph',
+  
+  addAttributes() {
+    return {
+      uuid: {
+        default: null // UUID will be null for new nodes initially
+      }
+    };
+  },
 
   parseHTML() {
     return [{ tag: 'experiment-node' }];

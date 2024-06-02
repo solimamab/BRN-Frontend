@@ -203,27 +203,108 @@ const TemplateEditor = () => {
   };
 
 
-  // Method to send back the JSON data to a local host link and confirm a JSON response was received (unlike handleSave this is only sending back the JSON, but ins't changing anything in the editor based on that response)
   const handleParse = async () => {
     if (editor) {
-      const documentData = editor.getJSON();
-      const method = 'POST';
-      const url = 'http://localhost:8000/api/documents/parse/';
-      try {
-        const response = await fetch(url, {
-          method: method,
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify( editor.getJSON() ),
-        });
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-        const savedData = await response.json();
-        console.log("Document sent!", savedData);
-      } catch (error) {
-        console.error("Failed to send document:", error);
-      }
+        const documentData = editor.getJSON();
+        const method = 'POST';
+        const url = 'http://localhost:8000/api/documents/parse/';
+        try {
+            const response = await fetch(url, {
+                method: method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ content: documentData, uuid: id }) // Include the document UUID
+            });
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            const savedData = await response.json();
+            console.log("Document parsed successfully!", savedData);
+            // If parsing is successful, fetch and update metadata
+            await fetchAndUpdateMetadata();
+        } catch (error) {
+            console.error("Failed to send document for parsing:", error);
+        }
     }
   };
 
+  const fetchAndUpdateMetadata = async () => {
+    const url = `http://localhost:8000/api/documents/metadata/${id}/`;
+    try {
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const metadata = await response.json();
+        console.log("Fetched Metadata: ", metadata); // Check the actual structure
+
+        updateNodesWithUUIDs(metadata);
+    } catch (error) {
+        console.error("Failed to fetch document metadata:", error);
+    }
+  };
+
+  const updateNodesWithUUIDs = (metadata) => {
+    const transaction = editor.view.state.tr;
+
+    console.log("Starting to update nodes with UUIDs...");
+    console.log("Metadata received:", metadata);
+
+    editor.view.state.doc.descendants((node, pos) => {
+        if (node.type.name === 'paperNode' || node.type.name === 'experimentNode' || node.type.name === 'measurementNode') {
+            let contentText = '';
+            node.content.forEach(child => {
+                if (child.isTextblock) { // Assuming all relevant text content is within textblocks
+                    contentText += child.textContent + ' '; // Collecting all text content
+                }
+            });
+            contentText = contentText.trim(); // Clean up the text content
+
+            console.log(`Node type: ${node.type.name}`);
+            console.log(`Content text of node: "${contentText}"`);
+
+            if (node.type.name === 'paperNode') {
+                console.log("Searching for paper metadata match...");
+                console.log("Target for comparison:", metadata.paper ? metadata.paper.name : "No paper metadata available");
+                if (metadata.paper && contentText.includes(metadata.paper.name)) {
+                    console.log(`Matching paper found: ${metadata.paper.name}`);
+                    // update the node to set its uuid attribute equal to the paper's unique identifier
+                    editor.commands.setPaperNodeUUID(metadata.paper.unique_identifier);
+                    console.log("Node updated with UUID:", metadata.paper.unique_identifier);
+                }
+            } else if (node.type.name === 'experimentNode') {
+                console.log("Searching for experiment metadata match...");
+                const experimentMetadata = metadata.experiments.find(exp => contentText.includes(exp.name));
+                if (experimentMetadata) {
+                    console.log(`Matching experiment found: ${experimentMetadata.name}`);
+                    transaction.setNodeMarkup(pos, null, {...node.attrs, uuid: experimentMetadata.unique_identifier});
+                }
+            } else if (node.type.name === 'measurementNode') {
+                console.log("Searching for measurement metadata match...");
+                metadata.experiments.forEach(exp => {
+                    exp.measurements.forEach(meas => {
+                        if (contentText.includes(meas.description)) {
+                            console.log(`Matching measurement found: ${meas.description}`);
+                            transaction.setNodeMarkup(pos, null, {...node.attrs, uuid: meas.unique_identifier});
+                        }
+                    });
+                });
+            }
+        }
+    });
+
+    console.log("Applying changes...");
+ 
+  };
+
+  const updateFirstPaperNodeUUID = () => {
+    if (editor) {
+      const newUUID = "new-uuid-here";  // This could be dynamically determined
+      const result = editor.commands.setPaperNodeUUID(newUUID);
+      if (!result) {
+        console.log("No paperNode found or UUID update failed.");
+      } else {
+        console.log("UUID updated successfully.");
+      }
+    }
+  };
 
   return (
     <div className="Tiptap">
@@ -233,6 +314,7 @@ const TemplateEditor = () => {
             <FiArrowLeft />
           </button>
           <input type="text" className="document-name" value={name} onChange={handleNameChange} placeholder="Untitled Document" />
+          <button onClick={updateFirstPaperNodeUUID}>Update UUID of First Paper Node</button>
           <MenuBar editor={editor} handleSave={handleSave} handleParse={handleParse} />
         </header>
           <FloatMenu editor={editor} />
