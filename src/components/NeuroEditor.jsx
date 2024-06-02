@@ -16,7 +16,7 @@ import EditorJSONPreview from './EditorJSONPreview'; // Import JSON preview comp
 import { ExperimentNode } from '../extensions/ExperimentNode'; // Import the form node extension } from '../extensions/ExperimentNode';
 import { MeasurementNode } from '../extensions/MeasurementNode'; // Import the MeasurementNode
 import { FloatingMenu } from '@tiptap/react'; // Make sure the path is correct and the component exists in this path
-import { PluginKey } from '@tiptap/pm/state'
+import { PluginKey } from '@tiptap/pm/state';
 
 const CustomDocument = Document.extend({
   content: 'block+',
@@ -339,6 +339,7 @@ const MenuBar = ({ editor, handleSave, handleParse }) => {
         <option value="24">24pt</option>
       </select>
 
+      <select className="menu-select" onChange={(e) => setFontFamily(e.target.value)} defaultValue="Arial">
       <select className="menu-select" onChange={(e) => setFontFamily(e.target.value)} defaultValue="Arial">
         <option value="Arial">Arial</option>
         <option value="Courier New">Courier New</option>
