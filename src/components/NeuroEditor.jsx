@@ -340,7 +340,6 @@ const MenuBar = ({ editor, handleSave, handleParse }) => {
       </select>
 
       <select className="menu-select" onChange={(e) => setFontFamily(e.target.value)} defaultValue="Arial">
-      <select className="menu-select" onChange={(e) => setFontFamily(e.target.value)} defaultValue="Arial">
         <option value="Arial">Arial</option>
         <option value="Courier New">Courier New</option>
         <option value="Georgia">Georgia</option>
