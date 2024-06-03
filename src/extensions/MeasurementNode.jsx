@@ -139,6 +139,19 @@ export const MeasurementNode = Node.create({
           return true;
         }
         return false;
+      },
+      setMeasurmentNodeUUID: (uuid) => ({ tr, commands }) => {
+        const { doc } = tr;
+        let updated = false;
+        doc.descendants((node, pos) => {
+          if (node.type.name === 'measurementNode') {
+            const transaction = tr.setNodeMarkup(pos, null, { ...node.attrs, uuid: uuid });
+            updated = true;
+            return false;  // Stop iterating after finding the first paperNode
+          }
+          return true;
+        });
+        return updated;
       }
     };
   },

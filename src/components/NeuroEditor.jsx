@@ -251,38 +251,33 @@ const TemplateEditor = () => {
         if (node.type.name === 'paperNode' || node.type.name === 'experimentNode' || node.type.name === 'measurementNode') {
             let contentText = '';
             node.content.forEach(child => {
-                if (child.isTextblock) { // Assuming all relevant text content is within textblocks
-                    contentText += child.textContent + ' '; // Collecting all text content
+                if (child.isTextblock) {
+                    contentText += child.textContent + ' ';
                 }
             });
-            contentText = contentText.trim(); // Clean up the text content
+            contentText = contentText.trim();
 
             console.log(`Node type: ${node.type.name}`);
             console.log(`Content text of node: "${contentText}"`);
 
-            if (node.type.name === 'paperNode') {
+            if (node.type.name === 'paperNode' && metadata.paper) {
                 console.log("Searching for paper metadata match...");
-                console.log("Target for comparison:", metadata.paper ? metadata.paper.name : "No paper metadata available");
-                if (metadata.paper && contentText.includes(metadata.paper.name)) {
-                    console.log(`Matching paper found: ${metadata.paper.name}`);
-                    // update the node to set its uuid attribute equal to the paper's unique identifier
+                if (matchPaperNode(contentText, metadata.paper)) {
                     editor.commands.setPaperNodeUUID(metadata.paper.unique_identifier);
                     console.log("Node updated with UUID:", metadata.paper.unique_identifier);
                 }
             } else if (node.type.name === 'experimentNode') {
-                console.log("Searching for experiment metadata match...");
-                const experimentMetadata = metadata.experiments.find(exp => contentText.includes(exp.name));
+                const experimentMetadata = metadata.experiments.find(exp => matchExperimentNode(contentText, exp));
                 if (experimentMetadata) {
-                    console.log(`Matching experiment found: ${experimentMetadata.name}`);
-                    transaction.setNodeMarkup(pos, null, {...node.attrs, uuid: experimentMetadata.unique_identifier});
+                    editor.commands.setExperimentNodeUUID(experimentMetadata.unique_identifier);
+                    console.log("Node updated with UUID:", experimentMetadata.unique_identifier);  
                 }
             } else if (node.type.name === 'measurementNode') {
-                console.log("Searching for measurement metadata match...");
                 metadata.experiments.forEach(exp => {
                     exp.measurements.forEach(meas => {
-                        if (contentText.includes(meas.description)) {
-                            console.log(`Matching measurement found: ${meas.description}`);
-                            transaction.setNodeMarkup(pos, null, {...node.attrs, uuid: meas.unique_identifier});
+                        if (matchMeasurementNode(contentText, meas)) {
+                            editor.commands.setMeasurmentNodeUUID(meas.unique_identifier);  
+                            console.log("Node updated with UUID:", meas.unique_identifier);  
                         }
                     });
                 });
@@ -291,20 +286,33 @@ const TemplateEditor = () => {
     });
 
     console.log("Applying changes...");
- 
   };
 
-  const updateFirstPaperNodeUUID = () => {
-    if (editor) {
-      const newUUID = "new-uuid-here";  // This could be dynamically determined
-      const result = editor.commands.setPaperNodeUUID(newUUID);
-      if (!result) {
-        console.log("No paperNode found or UUID update failed.");
-      } else {
-        console.log("UUID updated successfully.");
-      }
-    }
-  };
+  function matchPaperNode(nodeText, paperData) {
+      return fieldMatch(nodeText, paperData.name) && 
+            fieldMatch(nodeText, paperData.introduction) &&
+            fieldMatch(nodeText, paperData.theory) &&
+            fieldMatch(nodeText, paperData.summary);
+  }
+
+  function matchExperimentNode(nodeText, experimentData) {
+      return fieldMatch(nodeText, experimentData.name) &&
+            fieldMatch(nodeText, experimentData.task_context) &&
+            fieldMatch(nodeText, experimentData.task) &&
+            fieldMatch(nodeText, experimentData.task_explained) &&
+            fieldMatch(nodeText, experimentData.discussion);
+  }
+
+  function matchMeasurementNode(nodeText, measurementData) {
+      return fieldMatch(nodeText, measurementData.description) &&
+            fieldMatch(nodeText, measurementData.parameters) &&
+            fieldMatch(nodeText, measurementData.interpretation);
+  }
+
+  function fieldMatch(nodeText, field) {
+      return (field && nodeText.includes(field)) || (!field && !nodeText);
+  }
+
 
   return (
     <div className="Tiptap">
@@ -314,7 +322,6 @@ const TemplateEditor = () => {
             <FiArrowLeft />
           </button>
           <input type="text" className="document-name" value={name} onChange={handleNameChange} placeholder="Untitled Document" />
-          <button onClick={updateFirstPaperNodeUUID}>Update UUID of First Paper Node</button>
           <MenuBar editor={editor} handleSave={handleSave} handleParse={handleParse} />
         </header>
           <FloatMenu editor={editor} />

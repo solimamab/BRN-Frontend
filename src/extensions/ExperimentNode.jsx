@@ -69,6 +69,20 @@ export const ExperimentNode = Node.create({
           ],
         });
       },
+      // add experimentNodeUUID
+      setExperimentNodeUUID: (uuid) => ({ tr, commands }) => {
+        const { doc } = tr;
+        let updated = false;
+        doc.descendants((node, pos) => {
+          if (node.type.name === 'experimentNode') {
+            const transaction = tr.setNodeMarkup(pos, null, { ...node.attrs, uuid: uuid });
+            updated = true;
+            return false;  // Stop iterating after finding the first paperNode
+          }
+          return true;
+        });
+        return updated;
+      }
     };
   },
 
