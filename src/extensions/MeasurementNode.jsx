@@ -140,7 +140,7 @@ export const MeasurementNode = Node.create({
         }
         return false;
       },
-      setMeasurmentNodeUUID: (uuid) => ({ tr, commands }) => {
+      setMeasurementNodeUUID: (uuid) => ({ tr, commands }) => {
         const { doc } = tr;
         let updated = false;
         doc.descendants((node, pos) => {

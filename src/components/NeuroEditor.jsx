@@ -242,77 +242,162 @@ const TemplateEditor = () => {
   };
 
   const updateNodesWithUUIDs = (metadata) => {
-    const transaction = editor.view.state.tr;
-
     console.log("Starting to update nodes with UUIDs...");
     console.log("Metadata received:", metadata);
-
+  
     editor.view.state.doc.descendants((node, pos) => {
-        if (node.type.name === 'paperNode' || node.type.name === 'experimentNode' || node.type.name === 'measurementNode') {
-            let contentText = '';
-            node.content.forEach(child => {
-                if (child.isTextblock) {
-                    contentText += child.textContent + ' ';
-                }
-            });
-            contentText = contentText.trim();
-
-            console.log(`Node type: ${node.type.name}`);
-            console.log(`Content text of node: "${contentText}"`);
-
-            if (node.type.name === 'paperNode' && metadata.paper) {
-                console.log("Searching for paper metadata match...");
-                if (matchPaperNode(contentText, metadata.paper)) {
-                    editor.commands.setPaperNodeUUID(metadata.paper.unique_identifier);
-                    console.log("Node updated with UUID:", metadata.paper.unique_identifier);
-                }
-            } else if (node.type.name === 'experimentNode') {
-                const experimentMetadata = metadata.experiments.find(exp => matchExperimentNode(contentText, exp));
-                if (experimentMetadata) {
-                    editor.commands.setExperimentNodeUUID(experimentMetadata.unique_identifier);
-                    console.log("Node updated with UUID:", experimentMetadata.unique_identifier);  
-                }
-            } else if (node.type.name === 'measurementNode') {
-                metadata.experiments.forEach(exp => {
-                    exp.measurements.forEach(meas => {
-                        if (matchMeasurementNode(contentText, meas)) {
-                            editor.commands.setMeasurmentNodeUUID(meas.unique_identifier);  
-                            console.log("Node updated with UUID:", meas.unique_identifier);  
-                        }
-                    });
-                });
-            }
+      if (node.type.name === 'paperNode' && metadata.paper) {
+        let paperContents = {
+          paperNameNodeText: '',
+          paperIntroductionNodeText: '',
+          paperTheoryNodeText: '',
+          paperSummaryNodeText: '',
+          paperURLNodeText: ''
+        };
+  
+        node.content.forEach(child => {
+          const textContent = typeof child.textContent === 'string' ? child.textContent.trim() : '';
+          switch (child.type.name) {
+            case 'paperNameParagraph':
+              paperContents.paperNameNodeText = textContent;
+              break;
+            case 'introductionParagraph':
+              paperContents.paperIntroductionNodeText = textContent;
+              break;
+            case 'theoryParagraph':
+              paperContents.paperTheoryNodeText = textContent;
+              break;
+            case 'summaryParagraph':
+              paperContents.paperSummaryNodeText = textContent;
+              break;
+            case 'paperURLParagraph':
+              paperContents.paperURLNodeText = textContent;
+              break;
+          }
+        });
+  
+        const paperMatch = matchPaperNode(paperContents, metadata.paper);
+        if (paperMatch) {
+          editor.commands.setPaperNodeUUID(metadata.paper.unique_identifier);
         }
+      } else if (node.type.name === 'experimentNode' && metadata.paper.experiments) {
+        let experimentContents = {
+          experimentNameText: '',
+          taskContextText: '',
+          taskText: '',
+          taskExplainedText: '',
+          discussionText: ''
+        };
+  
+        node.content.forEach(child => {
+          const textContent = typeof child.textContent === 'string' ? child.textContent.trim() : '';
+          switch (child.type.name) {
+            case 'experimentNameParagraph':
+              experimentContents.experimentNameText = textContent;
+              break;
+            case 'taskContextParagraph':
+              experimentContents.taskContextText = textContent;
+              break;
+            case 'taskParagraph':
+              experimentContents.taskText = textContent;
+              break;
+            case 'taskExplainedParagraph':
+              experimentContents.taskExplainedText = textContent;
+              break;
+            case 'discussionParagraph':
+              experimentContents.discussionText = textContent;
+              break;
+          }
+        });
+  
+        metadata.paper.experiments.forEach(exp => {
+          if (matchExperimentNode(experimentContents, exp)) {
+            editor.commands.setExperimentNodeUUID(exp.unique_identifier);
+          }
+        });
+      } else if (node.type.name === 'measurementNode' && metadata.paper.experiments) {
+        let measurementContents = {
+          descriptionText: '',
+          parametersText: '',
+          interpretationText: ''
+        };
+  
+        node.content.forEach(child => {
+          const textContent = typeof child.textContent === 'string' ? child.textContent.trim() : '';
+          switch (child.type.name) {
+            case 'mDescriptionParagraph':
+              measurementContents.descriptionText = textContent;
+              break;
+            case 'mParametersParagraph':
+              measurementContents.parametersText = textContent;
+              break;
+            case 'mInterpretationParagraph':
+              measurementContents.interpretationText = textContent;
+              break;
+          }
+        });
+  
+        metadata.paper.experiments.forEach(exp => {
+          exp.measurements.forEach(meas => {
+            if (matchMeasurementNode(measurementContents, meas)) {
+              editor.commands.setMeasurementNodeUUID(meas.unique_identifier);
+            }
+          });
+        });
+      }
     });
-
-    console.log("Applying changes...");
+    console.log("Finished processing nodes.");
   };
+  
 
-  function matchPaperNode(nodeText, paperData) {
-      return fieldMatch(nodeText, paperData.name) && 
-            fieldMatch(nodeText, paperData.introduction) &&
-            fieldMatch(nodeText, paperData.theory) &&
-            fieldMatch(nodeText, paperData.summary);
+
+
+  function matchPaperNode(paperContents, paperData) {
+    console.log(`Comparing document text with Paper Name: '${paperData.name}', and '${paperContents.paperNameNodeText}' Result: ${fieldMatch(paperContents.paperNameNodeText, paperData.name)}`);
+    console.log(`Comparing document text with Introduction: '${paperData.introduction}', and '${paperContents.paperIntroductionNodeText}' Result: ${fieldMatch(paperContents.paperIntroductionNodeText, paperData.introduction)}`);
+    console.log(`Comparing document text with Theory: '${paperData.theory}', and '${paperContents.paperTheoryNodeText}' Result: ${fieldMatch(paperContents.paperTheoryNodeText, paperData.theory)}`);
+    console.log(`Comparing document text with Summary: '${paperData.summary}', and '${paperContents.paperSummaryNodeText}' Result: ${fieldMatch(paperContents.paperSummaryNodeText, paperData.summary)}`);
+    console.log(`Comparing document text with URL: '${paperData.url}', and '${paperContents.paperURLNodeText}' Result: ${fieldMatch(paperContents.paperURLNodeText, paperData.url)}`);
+  
+    return (
+      fieldMatch(paperContents.paperNameNodeText, paperData.name) &&
+      fieldMatch(paperContents.paperIntroductionNodeText, paperData.introduction) &&
+      (paperData.theory === '' || fieldMatch(paperContents.paperTheoryNodeText, paperData.theory)) &&
+      fieldMatch(paperContents.paperSummaryNodeText, paperData.summary) &&
+      fieldMatch(paperContents.paperURLNodeText, paperData.url)
+    );
   }
 
-  function matchExperimentNode(nodeText, experimentData) {
-      return fieldMatch(nodeText, experimentData.name) &&
-            fieldMatch(nodeText, experimentData.task_context) &&
-            fieldMatch(nodeText, experimentData.task) &&
-            fieldMatch(nodeText, experimentData.task_explained) &&
-            fieldMatch(nodeText, experimentData.discussion);
+  function matchExperimentNode(experimentContents, experimentData) {
+      return fieldMatch(experimentContents.experimentNameText, experimentData.name) &&
+            fieldMatch(experimentContents.taskContextText, experimentData.task_context) &&
+            fieldMatch(experimentContents.taskText, experimentData.task) &&
+            fieldMatch(experimentContents.taskExplainedText, experimentData.task_explained) &&
+            fieldMatch(experimentContents.discussionText, experimentData.discussion);
   }
 
-  function matchMeasurementNode(nodeText, measurementData) {
-      return fieldMatch(nodeText, measurementData.description) &&
-            fieldMatch(nodeText, measurementData.parameters) &&
-            fieldMatch(nodeText, measurementData.interpretation);
+  function matchMeasurementNode(measurementContents, measurementData) {
+      return fieldMatch(measurementContents.descriptionText, measurementData.description) &&
+            fieldMatch(measurementContents.parametersText, measurementData.parameters) &&
+            fieldMatch(measurementContents.interpretationText, measurementData.interpretation);
   }
 
   function fieldMatch(nodeText, field) {
-      return (field && nodeText.includes(field)) || (!field && !nodeText);
+    // Ensure both nodeText and field are strings
+    const cleanNodeText = typeof nodeText === 'string' ? nodeText.trim() : '';
+    const cleanField = typeof field === 'string' ? field.trim() : '';
+  
+    const isNodeTextEmpty = !cleanNodeText || cleanNodeText === ' ';
+    const isFieldEmpty = !cleanField || cleanField === ' ';
+  
+    if (isNodeTextEmpty && isFieldEmpty) {
+      return true;
+    } else if (!isNodeTextEmpty && !isFieldEmpty) {
+      return cleanNodeText.includes(cleanField);
+    } else {
+      return false;
+    }
   }
-
 
   return (
     <div className="Tiptap">
