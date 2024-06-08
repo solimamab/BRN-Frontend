@@ -202,6 +202,7 @@ const TemplateEditor = () => {
     setIsNameChanged(true); // Set the flag when name changes
   };
 
+  
 
   const handleParse = async () => {
     if (editor) {
@@ -243,111 +244,118 @@ const TemplateEditor = () => {
 
   const updateNodesWithUUIDs = (metadata) => {
     console.log("Starting to update nodes with UUIDs...");
-    console.log("Metadata received:", metadata);
-  
+    console.log("Metadata received:", JSON.stringify(metadata, null, 2));
+
+    const usedUUIDs = new Set(); // To track UUIDs that have been assigned
+
     editor.view.state.doc.descendants((node, pos) => {
-      if (node.type.name === 'paperNode' && metadata.paper) {
-        let paperContents = {
-          paperNameNodeText: '',
-          paperIntroductionNodeText: '',
-          paperTheoryNodeText: '',
-          paperSummaryNodeText: '',
-          paperURLNodeText: ''
-        };
-  
-        node.content.forEach(child => {
-          const textContent = typeof child.textContent === 'string' ? child.textContent.trim() : '';
-          switch (child.type.name) {
-            case 'paperNameParagraph':
-              paperContents.paperNameNodeText = textContent;
-              break;
-            case 'introductionParagraph':
-              paperContents.paperIntroductionNodeText = textContent;
-              break;
-            case 'theoryParagraph':
-              paperContents.paperTheoryNodeText = textContent;
-              break;
-            case 'summaryParagraph':
-              paperContents.paperSummaryNodeText = textContent;
-              break;
-            case 'paperURLParagraph':
-              paperContents.paperURLNodeText = textContent;
-              break;
-          }
-        });
-  
-        const paperMatch = matchPaperNode(paperContents, metadata.paper);
-        if (paperMatch) {
-          editor.commands.setPaperNodeUUID(metadata.paper.unique_identifier);
-        }
-      } else if (node.type.name === 'experimentNode' && metadata.paper.experiments) {
-        let experimentContents = {
-          experimentNameText: '',
-          taskContextText: '',
-          taskText: '',
-          taskExplainedText: '',
-          discussionText: ''
-        };
-  
-        node.content.forEach(child => {
-          const textContent = typeof child.textContent === 'string' ? child.textContent.trim() : '';
-          switch (child.type.name) {
-            case 'experimentNameParagraph':
-              experimentContents.experimentNameText = textContent;
-              break;
-            case 'taskContextParagraph':
-              experimentContents.taskContextText = textContent;
-              break;
-            case 'taskParagraph':
-              experimentContents.taskText = textContent;
-              break;
-            case 'taskExplainedParagraph':
-              experimentContents.taskExplainedText = textContent;
-              break;
-            case 'discussionParagraph':
-              experimentContents.discussionText = textContent;
-              break;
-          }
-        });
-  
-        metadata.paper.experiments.forEach(exp => {
-          if (matchExperimentNode(experimentContents, exp)) {
-            editor.commands.setExperimentNodeUUID(exp.unique_identifier);
-          }
-        });
-      } else if (node.type.name === 'measurementNode' && metadata.paper.experiments) {
-        let measurementContents = {
-          descriptionText: '',
-          parametersText: '',
-          interpretationText: ''
-        };
-  
-        node.content.forEach(child => {
-          const textContent = typeof child.textContent === 'string' ? child.textContent.trim() : '';
-          switch (child.type.name) {
-            case 'mDescriptionParagraph':
-              measurementContents.descriptionText = textContent;
-              break;
-            case 'mParametersParagraph':
-              measurementContents.parametersText = textContent;
-              break;
-            case 'mInterpretationParagraph':
-              measurementContents.interpretationText = textContent;
-              break;
-          }
-        });
-  
-        metadata.paper.experiments.forEach(exp => {
-          exp.measurements.forEach(meas => {
-            if (matchMeasurementNode(measurementContents, meas)) {
-              editor.commands.setMeasurementNodeUUID(meas.unique_identifier);
+        if (node.type.name === 'paperNode' && metadata.paper) {
+            const paperContents = {
+                paperNameNodeText: '',
+                paperIntroductionNodeText: '',
+                paperTheoryNodeText: '',
+                paperSummaryNodeText: '',
+                paperURLNodeText: ''
+            };
+
+            node.content.forEach(child => {
+                const textContent = typeof child.textContent === 'string' ? child.textContent.trim() : '';
+                switch (child.type.name) {
+                    case 'paperNameParagraph':
+                        paperContents.paperNameNodeText = textContent;
+                        break;
+                    case 'introductionParagraph':
+                        paperContents.paperIntroductionNodeText = textContent;
+                        break;
+                    case 'theoryParagraph':
+                        paperContents.paperTheoryNodeText = textContent;
+                        break;
+                    case 'summaryParagraph':
+                        paperContents.paperSummaryNodeText = textContent;
+                        break;
+                    case 'paperURLParagraph':
+                        paperContents.paperURLNodeText = textContent;
+                        break;
+                }
+            });
+
+            if (matchPaperNode(paperContents, metadata.paper) && !usedUUIDs.has(metadata.paper.unique_identifier)) {
+                editor.commands.setPaperNodeUUID(metadata.paper.unique_identifier, pos);
+                usedUUIDs.add(metadata.paper.unique_identifier);
+                console.log(`Assigned UUID ${metadata.paper.unique_identifier} to paperNode.`);
             }
-          });
-        });
-      }
+        } else if (node.type.name === 'experimentNode' && metadata.paper.experiments) {
+            metadata.paper.experiments.forEach(exp => {
+                const experimentContents = {
+                    experimentNameText: '',
+                    taskContextText: '',
+                    taskText: '',
+                    taskExplainedText: '',
+                    discussionText: ''
+                };
+
+                node.content.forEach(child => {
+                    const textContent = typeof child.textContent === 'string' ? child.textContent.trim() : '';
+                    switch (child.type.name) {
+                        case 'experimentNameParagraph':
+                            experimentContents.experimentNameText = textContent;
+                            break;
+                        case 'taskContextParagraph':
+                            experimentContents.taskContextText = textContent;
+                            break;
+                        case 'taskParagraph':
+                            experimentContents.taskText = textContent;
+                            break;
+                        case 'taskExplainedParagraph':
+                            experimentContents.taskExplainedText = textContent;
+                            break;
+                        case 'discussionParagraph':
+                            experimentContents.discussionText = textContent;
+                            break;
+                    }
+                });
+
+                if (matchExperimentNode(experimentContents, exp) && !usedUUIDs.has(exp.unique_identifier)) {
+                    editor.commands.setExperimentNodeUUID(exp.unique_identifier, pos);
+                    usedUUIDs.add(exp.unique_identifier);
+                    console.log(`Assigned UUID ${exp.unique_identifier} to experimentNode.`);
+                }
+            });
+        } else if (node.type.name === 'measurementNode' && metadata.paper.experiments) {
+            metadata.paper.experiments.forEach(exp => {
+                exp.measurements.forEach(meas => {
+                    const measurementContents = {
+                        descriptionText: '',
+                        parametersText: '',
+                        interpretationText: ''
+                    };
+
+                    node.content.forEach(child => {
+                        const textContent = typeof child.textContent === 'string' ? child.textContent.trim() : '';
+                        switch (child.type.name) {
+                            case 'mDescriptionParagraph':
+                                measurementContents.descriptionText = textContent;
+                                break;
+                            case 'mParametersParagraph':
+                                measurementContents.parametersText = textContent;
+                                break;
+                            case 'mInterpretationParagraph':
+                                measurementContents.interpretationText = textContent;
+                                break;
+                        }
+                    });
+
+                    if (matchMeasurementNode(measurementContents, meas) && !usedUUIDs.has(meas.unique_identifier)) {
+                        editor.commands.setMeasurementNodeUUID(meas.unique_identifier, pos);
+                        usedUUIDs.add(meas.unique_identifier);
+                        console.log(`Assigned UUID ${meas.unique_identifier} to measurementNode.`);
+                    }
+                });
+            });
+        }
     });
-    console.log("Finished processing nodes.");
-  };
+    console.log("Finished processing nodes. Used UUIDs:", Array.from(usedUUIDs));
+};
   
 
 
