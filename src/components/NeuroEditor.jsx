@@ -172,6 +172,86 @@ const TemplateEditor = () => {
     }
   }, [isNameChanged]);
 
+  const checkForDuplicateNodes = () => {
+    const experimentNodes = [];
+    const measurementNodes = [];
+  
+    editor.view.state.doc.descendants((node, pos) => {
+      if (node.type.name === 'experimentNode') {
+        const experimentContents = extractExperimentContents(node);
+        if (isDuplicateNode(experimentContents, experimentNodes)) {
+          throw new Error('Duplicate Experiment Node detected. Please remove or modify the duplicate experiment entries before proceeding.');
+        }
+        experimentNodes.push(experimentContents);
+      } else if (node.type.name === 'measurementNode') {
+        const measurementContents = extractMeasurementContents(node);
+        if (isDuplicateNode(measurementContents, measurementNodes)) {
+          throw new Error('Duplicate Measurement Node detected. Please remove or modify the duplicate measurement entries before proceeding.');
+        }
+        measurementNodes.push(measurementContents);
+      }
+    });
+  };
+  
+  const extractExperimentContents = (node) => {
+    const contents = {
+      experimentNameText: '',
+      taskContextText: '',
+      taskText: '',
+      taskExplainedText: '',
+      discussionText: ''
+    };
+    node.content.forEach(child => {
+      const textContent = child.textContent.trim();
+      switch (child.type.name) {
+        case 'experimentNameParagraph':
+          contents.experimentNameText = textContent;
+          break;
+        case 'taskContextParagraph':
+          contents.taskContextText = textContent;
+          break;
+        case 'taskParagraph':
+          contents.taskText = textContent;
+          break;
+        case 'taskExplainedParagraph':
+          contents.taskExplainedText = textContent;
+          break;
+        case 'discussionParagraph':
+          contents.discussionText = textContent;
+          break;
+      }
+    });
+    return contents;
+  };
+  
+  const extractMeasurementContents = (node) => {
+    const contents = {
+      descriptionText: '',
+      parametersText: '',
+      interpretationText: ''
+    };
+    node.content.forEach(child => {
+      const textContent = child.textContent.trim();
+      switch (child.type.name) {
+        case 'mDescriptionParagraph':
+          contents.descriptionText = textContent;
+          break;
+        case 'mParametersParagraph':
+          contents.parametersText = textContent;
+          break;
+        case 'mInterpretationParagraph':
+          contents.interpretationText = textContent;
+          break;
+      }
+    });
+    return contents;
+  };
+  
+  const isDuplicateNode = (newNode, nodeList) => {
+    return nodeList.some(node => Object.keys(node).every(key => node[key] === newNode[key]));
+  };
+  
+
 
   const handleSave = async () => {
     if (editor) {
@@ -205,24 +285,22 @@ const TemplateEditor = () => {
   
 
   const handleParse = async () => {
-    if (editor) {
-        const documentData = editor.getJSON();
-        const method = 'POST';
-        const url = 'http://localhost:8000/api/documents/parse/';
-        try {
-            const response = await fetch(url, {
-                method: method,
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ content: documentData, uuid: id }) // Include the document UUID
-            });
-            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-            const savedData = await response.json();
-            console.log("Document parsed successfully!", savedData);
-            // If parsing is successful, fetch and update metadata
-            await fetchAndUpdateMetadata();
-        } catch (error) {
-            console.error("Failed to send document for parsing:", error);
-        }
+    try {
+      checkForDuplicateNodes(); // Check for duplicates before parsing
+      const documentData = editor.getJSON();
+      const response = await fetch('http://localhost:8000/api/documents/parse/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: documentData, uuid: id })
+      });
+  
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      const savedData = await response.json();
+      console.log("Document parsed successfully!", savedData);
+      await fetchAndUpdateMetadata();
+    } catch (error) {
+      console.error("Failed to parse document:", error);
+      alert("Failed to parse document: " + error.message);  // Using alert to notify the user
     }
   };
 
