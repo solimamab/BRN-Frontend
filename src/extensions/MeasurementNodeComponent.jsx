@@ -1,7 +1,9 @@
 import React from 'react';
 import { NodeViewWrapper, NodeViewContent } from '@tiptap/react';
- 
-const Component = ({ node, editor, updateAttributes, getPos }) => {
+
+const MeasurementNodeComponent = ({ node, editor, updateAttributes, getPos }) => {
+  const isProcessed = node.attrs.uuid !== null;
+  
   const toggleMeasurementType = () => {
     const currentType = node.attrs.measurementType;
     const newType = currentType === 'mni' ? 'brodmann' : 'mni';
@@ -34,7 +36,8 @@ const Component = ({ node, editor, updateAttributes, getPos }) => {
   };
 
   return (
-    <NodeViewWrapper className="react-component-with-content">
+    <NodeViewWrapper className={`measurement-node ${isProcessed ? 'processed' : 'unprocessed'}`}>
+      <div className="status-label">{isProcessed ? 'Processed' : 'Unprocessed'}</div>
       <NodeViewContent className="content" />
       <button onClick={toggleMeasurementType}>
         Toggle Measurement Type
@@ -43,4 +46,4 @@ const Component = ({ node, editor, updateAttributes, getPos }) => {
   );
 };
 
-export default Component;
+export default MeasurementNodeComponent;

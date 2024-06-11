@@ -2,7 +2,7 @@
 import { Node, mergeAttributes } from '@tiptap/core';
 import { NodeViewRenderer } from '@tiptap/react';
 import { ReactNodeViewRenderer } from '@tiptap/react';
-import Component from './Component';
+import MeasurementNodeComponent from './MeasurementNodeComponent';
 import { TextSelection } from '@tiptap/pm/state';
 
 const createCustomParagraphNode = (name, dataType) => {
@@ -83,7 +83,7 @@ export const MeasurementNode = Node.create({
   },
 
   addNodeView() {
-    return ReactNodeViewRenderer((props) => <Component {...props} editor={props.editor} getPos={props.getPos} />, { contentDOMElementTag: 'measurement-node' });
+    return ReactNodeViewRenderer(MeasurementNodeComponent, { contentDOMElementTag: 'measurement-node' });
   },
 
   parseHTML() {
@@ -102,13 +102,13 @@ export const MeasurementNode = Node.create({
             type: 'measurementNode',
             attrs: { measurementType: 'mni' },
             content: [
-              { type: 'mDescriptionParagraph', content: [{ type: 'text', text: 'Enter Description' }] },
-              { type: 'mParametersParagraph', content: [{ type: 'text', text: 'Enter Parameters' }] },
-              { type: 'mInterpretationParagraph', content: [{ type: 'text', text: 'Enter Interpretation' }] },
-              { type: 'mLabelParagraph', content: [{ type: 'text', text: 'Enter Label' }] },
-              { type: 'xCoordinateParagraph', content: [{ type: 'text', text: 'Enter X Coordinate' }] },
-              { type: 'yCoordinateParagraph', content: [{ type: 'text', text: 'Enter Y Coordinate' }] },
-              { type: 'zCoordinateParagraph', content: [{ type: 'text', text: 'Enter Z Coordinate' }] }
+              { type: 'mDescriptionParagraph', content: [{ type: 'text', text: ' ' }] },
+              { type: 'mParametersParagraph', content: [{ type: 'text', text: ' ' }] },
+              { type: 'mInterpretationParagraph', content: [{ type: 'text', text: ' ' }] },
+              { type: 'mLabelParagraph', content: [{ type: 'text', text: ' ' }] },
+              { type: 'xCoordinateParagraph', content: [{ type: 'text', text: ' ' }] },
+              { type: 'yCoordinateParagraph', content: [{ type: 'text', text: ' ' }] },
+              { type: 'zCoordinateParagraph', content: [{ type: 'text', text: ' ' }] }
             ]
           });
         } else {

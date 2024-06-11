@@ -2,7 +2,7 @@ import { Node, mergeAttributes } from '@tiptap/core';
 import { TextSelection } from '@tiptap/pm/state';
 import { NodeViewRenderer } from '@tiptap/react';
 import { ReactNodeViewRenderer } from '@tiptap/react';
-import Component from './Component';
+import PaperNodeComponent from './PaperNodeComponent';
 
 // Helper function to create custom paragraph nodes
 const createCustomParagraphNode = (name, dataType) => {
@@ -54,6 +54,10 @@ export const PaperNode = Node.create({
 
   renderHTML({ HTMLAttributes }) {
     return ['div', mergeAttributes(HTMLAttributes, {'class': 'paper-node'}), 0];
+  },
+
+  addNodeView() {
+    return ReactNodeViewRenderer(PaperNodeComponent);
   },
 
   addCommands() {

@@ -1,5 +1,9 @@
 import { Node, mergeAttributes } from '@tiptap/core';
 import { TextSelection } from '@tiptap/pm/state';
+import { NodeViewRenderer } from '@tiptap/react';
+import { ReactNodeViewRenderer } from '@tiptap/react';
+import ExperimentNodeComponent from './ExperimentNodeComponent';
+
 
 // Helper function to create custom paragraph nodes for each experiment field
 const createExperimentParagraphNode = (name, dataType) => {
@@ -51,6 +55,10 @@ export const ExperimentNode = Node.create({
 
   renderHTML({ HTMLAttributes }) {
     return ['div', mergeAttributes(HTMLAttributes, {'class': 'experiment-node'}), 0];
+  },
+
+  addNodeView() {
+    return ReactNodeViewRenderer(ExperimentNodeComponent);
   },
 
   addCommands() {

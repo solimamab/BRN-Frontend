@@ -76,8 +76,8 @@ const HomePage = () => {
   
     if (confirmDelete) {
       const url = isNeuro1 
-        ? `http://localhost:8000/api/documents/neuro1/delete/${doc.unique_identifier}` 
-        : `http://localhost:8000/api/documents/delete/${doc.unique_identifier}`;
+        ? `http://localhost:8000/api/documents/neuro1/delete/${doc.unique_identifier}/` 
+        : `http://localhost:8000/api/documents/delete/${doc.unique_identifier}/`;
       
       try {
         const response = await fetch(url, {
@@ -118,7 +118,7 @@ const HomePage = () => {
                   {doc.name || 'Untitled'}
                 </div>
                 <div className="document-template">Template: {doc.template}</div>
-                <button onClick={() => deleteDocument(doc.unique_identifier)}>Delete</button>
+                <button onClick={() => deleteDocument(doc)}>Delete</button>
               </li>
             ))}
           </ul>
