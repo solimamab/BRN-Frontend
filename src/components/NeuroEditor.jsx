@@ -282,16 +282,30 @@ const TemplateEditor = () => {
     setIsNameChanged(true); // Set the flag when name changes
   };
 
-  
+
 
   const handleParse = async () => {
     try {
       checkForDuplicateNodes(); // Check for duplicates before parsing
-      const documentData = editor.getJSON();
+      const metadata = await fetchMetadata();
+      const documentData = editor.getJSON(); // Define documentData here, right after metadata fetch
+      if (metadata) {
+        const currentUUIDs = extractUUIDsFromDocument(documentData);
+        const metadataUUIDs = extractUUIDsFromMetadata(metadata);
+  
+        // Find UUIDs in metadata not present in the current document
+        const deletedUUIDs = metadataUUIDs.filter(uuid => !currentUUIDs.includes(uuid));
+  
+        for (let uuid of deletedUUIDs) {
+          await deleteNode(uuid, determineNodeType(uuid, metadata));
+        }
+      }
+  
+      // Continue with normal parsing as no deletions or deletions are handled
       const response = await fetch('http://localhost:8000/api/documents/parse/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: documentData, uuid: id })
+        body: JSON.stringify({ content: documentData, uuid: id }) // documentData is now defined
       });
   
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -301,6 +315,82 @@ const TemplateEditor = () => {
     } catch (error) {
       console.error("Failed to parse document:", error);
       alert("Failed to parse document: " + error.message);  // Using alert to notify the user
+    }
+  };
+  
+  const fetchMetadata = async () => {
+    const url = `http://localhost:8000/api/documents/metadata/${id}/`;
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return await response.json();
+    } catch (error) {
+      console.error("Failed to fetch document metadata:", error);
+      return null;
+    }
+  };
+  
+  const extractUUIDsFromDocument = (documentData) => {
+    const uuids = [];
+    const extract = (content) => {
+      if (content.attrs && content.attrs.uuid) {
+        uuids.push(content.attrs.uuid);
+      }
+      if (content.content) {
+        content.content.forEach(extract);
+      }
+    };
+    extract(documentData);
+    return uuids;
+  };
+  
+  const extractUUIDsFromMetadata = (metadata) => {
+    const uuids = [];
+    if (metadata.paper) {
+      uuids.push(metadata.paper.unique_identifier);
+      metadata.paper.experiments.forEach(exp => {
+        uuids.push(exp.unique_identifier);
+        exp.measurements.forEach(meas => uuids.push(meas.unique_identifier));
+      });
+    }
+    return uuids;
+  };
+  
+  const determineNodeType = (uuid, metadata) => {
+    if (metadata.paper && metadata.paper.unique_identifier === uuid) {
+      return 'paper';
+    }
+    let type = '';
+    metadata.paper.experiments.forEach(exp => {
+      if (exp.unique_identifier === uuid) {
+        type = 'experiment';
+      }
+      exp.measurements.forEach(meas => {
+        if (meas.unique_identifier === uuid) {
+          type = 'measurement';
+        }
+      });
+    });
+    return type;
+  };
+  
+  const deleteNode = async (uuid, nodeType) => {
+    const url = new URL(`http://localhost:8000/api/documents/node-management/${uuid}/`);
+    url.search = new URLSearchParams({ type: nodeType }).toString();
+  
+    try {
+      const response = await fetch(url, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      console.log(`Node ${uuid} deleted successfully.`);
+    } catch (error) {
+      console.error("Failed to delete node:", error);
     }
   };
 
