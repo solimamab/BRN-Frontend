@@ -70,21 +70,32 @@ const HomePage = () => {
   };
 
   // Function to delete a document
-  const deleteDocument = async (uniqueIdentifier) => {
-    try {
-      const response = await fetch(`http://localhost:8000/api/documents/delete/${uniqueIdentifier}`, {
-        method: 'DELETE'
-      });
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+  const deleteDocument = async (doc) => {
+    const isNeuro1 = doc.template === 'neuro1';
+    const confirmDelete = window.confirm(`Are you sure you want to delete this document${isNeuro1 ? " and all associated node data" : ""}? This action cannot be undone.`);
+  
+    if (confirmDelete) {
+      const url = isNeuro1 
+        ? `http://localhost:8000/api/documents/neuro1/delete/${doc.unique_identifier}` 
+        : `http://localhost:8000/api/documents/delete/${doc.unique_identifier}`;
+      
+      try {
+        const response = await fetch(url, {
+          method: 'DELETE'
+        });
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        // Remove the deleted document from the documents array
+        setDocuments(documents.filter(d => d.unique_identifier !== doc.unique_identifier));
+        alert('Document deleted successfully.');
+      } catch (error) {
+        console.error('Failed to delete document', error);
+        alert('Failed to delete document: ' + error.message);
       }
-      // Remove the deleted document from the documents array
-      setDocuments(documents.filter(doc => doc.unique_identifier !== uniqueIdentifier));
-    } catch (error) {
-      console.error('Failed to delete document', error);
     }
   };
-
+  
   return (
     <div className="homepage">
       <header className="homepage-header">
