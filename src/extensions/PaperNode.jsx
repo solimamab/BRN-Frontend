@@ -9,6 +9,27 @@ const createCustomParagraphNode = (name, dataType) => {
   return Node.create({
     name: name,
     group: 'block',
+    content: 'inline*',
+    addAttributes() {
+      return {
+        dataType: {
+          default: dataType
+        }
+      };
+    },
+    parseHTML() {
+      return [{ tag: `p[data-type="${dataType}"]` }];
+    },
+    renderHTML({ node, HTMLAttributes }) {
+      return ['p', mergeAttributes(HTMLAttributes, {'data-type': dataType}), 0];
+    }
+  });
+};
+
+const createURLParagraphNode = (name, dataType) => {
+  return Node.create({
+    name: name,
+    group: 'block',
     content: 'text*',
     addAttributes() {
       return {
@@ -31,7 +52,7 @@ const PaperNameParagraph = createCustomParagraphNode('paperNameParagraph', 'pape
 const IntroductionParagraph = createCustomParagraphNode('introductionParagraph', 'introduction');
 const TheoryParagraph = createCustomParagraphNode('theoryParagraph', 'theory');
 const SummaryParagraph = createCustomParagraphNode('summaryParagraph', 'summary');
-const PaperURLParagraph = createCustomParagraphNode('paperURLParagraph', 'paperURL');
+const PaperURLParagraph = createURLParagraphNode('paperURLParagraph', 'paperURL');
 
 // Defining the main PaperNode that uses these custom paragraphs
 export const PaperNode = Node.create({

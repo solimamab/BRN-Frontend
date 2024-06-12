@@ -10,6 +10,27 @@ const createExperimentParagraphNode = (name, dataType) => {
   return Node.create({
     name: name,
     group: 'block',
+    content: 'inline*',
+    addAttributes() {
+      return {
+        dataType: {
+          default: dataType
+        }
+      };
+    },
+    parseHTML() {
+      return [{ tag: `p[data-type="${dataType}"]` }];
+    },
+    renderHTML({ node, HTMLAttributes }) {
+      return ['p', mergeAttributes(HTMLAttributes, {'data-type': dataType}), 0];
+    }
+  });
+};
+
+const createURLParagraphNode = (name, dataType) => {
+  return Node.create({
+    name: name,
+    group: 'block',
     content: 'text*',
     addAttributes() {
       return {
@@ -33,7 +54,7 @@ const TaskContextParagraph = createExperimentParagraphNode('taskContextParagraph
 const TaskParagraph = createExperimentParagraphNode('taskParagraph', 'task');
 const TaskExplainedParagraph = createExperimentParagraphNode('taskExplainedParagraph', 'taskExplained');
 const DiscussionParagraph = createExperimentParagraphNode('discussionParagraph', 'discussion');
-const ExperimentURLParagraph = createExperimentParagraphNode('experimentURLParagraph', 'experimentURL');
+const ExperimentURLParagraph = createURLParagraphNode('experimentURLParagraph', 'experimentURL');
 
 // Main ExperimentNode definition
 export const ExperimentNode = Node.create({

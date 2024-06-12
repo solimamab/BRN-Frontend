@@ -59,6 +59,27 @@ const createCustomParagraphNode = (name, dataType) => {
   return Node.create({
     name: name,
     group: 'block',
+    content: 'inline*',
+    addAttributes() {
+      return {
+        dataType: {
+          default: dataType
+        }
+      };
+    },
+    parseHTML() {
+      return [{ tag: `p[data-type="${dataType}"]` }];
+    },
+    renderHTML({ node, HTMLAttributes }) {
+      return ['p', mergeAttributes(HTMLAttributes, {'data-type': dataType}), 0];
+    }
+  });
+};
+
+const createURLParagraphNode = (name, dataType) => {
+  return Node.create({
+    name: name,
+    group: 'block',
     content: 'text*',
     addAttributes() {
       return {
@@ -80,13 +101,13 @@ const PaperNameParagraph = createCustomParagraphNode('paperNameParagraph', 'pape
 const IntroductionParagraph = createCustomParagraphNode('introductionParagraph', 'introduction');
 const TheoryParagraph = createCustomParagraphNode('theoryParagraph', 'theory');
 const SummaryParagraph = createCustomParagraphNode('summaryParagraph', 'summary');
-const PaperURLParagraph = createCustomParagraphNode('paperURLParagraph', 'paperURL');
+const PaperURLParagraph = createURLParagraphNode('paperURLParagraph', 'paperURL');
 const ExperimentNameParagraph = createCustomParagraphNode('experimentNameParagraph', 'experimentName');
 const TaskContextParagraph = createCustomParagraphNode('taskContextParagraph', 'taskContext');
 const TaskParagraph = createCustomParagraphNode('taskParagraph', 'task');
 const TaskExplainedParagraph = createCustomParagraphNode('taskExplainedParagraph', 'taskExplained');
 const DiscussionParagraph = createCustomParagraphNode('discussionParagraph', 'discussion');
-const ExperimentURLParagraph = createCustomParagraphNode('experimentURLParagraph', 'experimentURL');
+const ExperimentURLParagraph = createURLParagraphNode('experimentURLParagraph', 'experimentURL');
 const MDescriptionParagraph = createCustomParagraphNode('mDescriptionParagraph', 'mDescription');
 const MParametersPargarph = createCustomParagraphNode('mParametersParagraph', 'mParameters');
 const MInterpretationParagraph = createCustomParagraphNode('mInterpretationParagraph', 'mInterpertation');

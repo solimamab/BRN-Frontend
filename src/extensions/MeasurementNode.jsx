@@ -38,7 +38,7 @@ const createIntegerParagraphNode = (name, dataType) => {
   return Node.create({
     name: name,
     group: 'block',
-    content: 'text*',
+    content: 'inline*',
     marks: '',
 
     addAttributes() {
