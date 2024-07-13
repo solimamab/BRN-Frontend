@@ -10,7 +10,7 @@ const createExperimentParagraphNode = (name, dataType) => {
   return Node.create({
     name: name,
     group: 'block',
-    content: 'inline*',
+    content: 'text*',
     addAttributes() {
       return {
         dataType: {
